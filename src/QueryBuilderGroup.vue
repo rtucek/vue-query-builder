@@ -65,7 +65,42 @@ export default class QueryBuilderGroup extends Vue {
   }
 
   addRule(): void {
-    console.log('todo addRule...');
+    const children = [...this.children];
+
+    const selectedRule = this.config.rules.find(rule => rule.identifier === this.selectedRule);
+    if (!selectedRule) {
+      throw new Error(`Rule identifier "${this.selectedRule}" is invalid.`);
+    }
+
+    if (typeof selectedRule.initialValue === 'object') {
+      throw new Error(`"initialValue" of "${selectedRule.identifier}" must not be an object - use a factory function!`);
+    }
+
+    let initialValue: any = null; // null as sensitive default...
+    if (typeof selectedRule.initialValue === 'function') {
+      // Use factory function
+      initialValue = selectedRule.initialValue();
+    }
+
+    if (typeof selectedRule.initialValue !== 'undefined') {
+      // If it exists use the primitive value
+      ({ initialValue } = selectedRule);
+    }
+
+    children.push({
+      identifier: selectedRule.identifier,
+      value: initialValue,
+    } as Rule);
+
+    this.$emit(
+      'query-update',
+      {
+        operatorIdentifier: this.selectedOperator,
+        children,
+      } as RuleSet,
+    );
+
+    // Reset selection
     this.selectedRule = '';
   }
 
@@ -125,6 +160,7 @@ export default class QueryBuilderGroup extends Vue {
           />
         </select>
         <button
+          :disabled="selectedRule === ''"
           @click="addRule"
           class="query-builder-group__rule-adding-button"
         >

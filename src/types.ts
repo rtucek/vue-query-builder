@@ -24,7 +24,7 @@ export interface RuleDefinition {
   identifier: string,
   name: string,
   component: Component | string,
-  initialValue: any,
+  initialValue?: any,
 }
 
 export interface QueryBuilderConfig {

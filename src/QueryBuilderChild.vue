@@ -5,11 +5,13 @@ import {
 } from '@/types';
 import { isRule, isRuleSet, isQueryBuilderConfig } from '@/guards';
 import QueryBuilderGroup from '@/QueryBuilderGroup.vue';
+import QueryBuilderRule from '@/QueryBuilderRule.vue';
 import { Component as VueComponent } from 'vue';
 
 @Component({
   components: {
     QueryBuilderGroup,
+    QueryBuilderRule,
   },
 })
 export default class QueryBuilderChild extends Vue {
@@ -45,7 +47,7 @@ export default class QueryBuilderChild extends Vue {
 
   get component(): VueComponent | string {
     if (this.isRule && this.ruleDefinition) {
-      return this.ruleDefinition.component;
+      return QueryBuilderRule;
     }
 
     if (this.isRuleSet) {

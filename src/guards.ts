@@ -68,13 +68,7 @@ export function isRuleDefinition(param: any): param is RuleDefinition {
     return false;
   }
 
-  if (typeof param.component !== 'string') {
-    return false;
-  }
-
-  const { hasOwnProperty } = Object.prototype;
-
-  return hasOwnProperty.call(param, 'initialValue');
+  return ['function', 'object', 'string'].includes(typeof param.component);
 }
 
 export function isQueryBuilderConfig(param: any): param is QueryBuilderConfig {

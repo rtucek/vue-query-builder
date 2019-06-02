@@ -139,6 +139,7 @@ export default class QueryBuilderGroup extends Vue {
   <div class="query-builder-group">
     <div class="query-builder-group__control">
       <div class="query-builder-group__group-selection">
+        <span class="query-builder-group__group-operator">Operator</span>
         <select v-model="selectedOperator">
           <option disabled value="">Select an operator</option>
           <option
@@ -166,6 +167,7 @@ export default class QueryBuilderGroup extends Vue {
         >
           Add Rule
         </button>
+        <div class="query-builder-group__spacer" />
         <button
           @click="newGroup"
           class="query-builder-group__group-adding-button"
@@ -174,13 +176,17 @@ export default class QueryBuilderGroup extends Vue {
         </button>
       </div>
     </div>
-    <div class="query-builder-group__group-rules">
+    <div
+      v-if="children.length > 0"
+      class="query-builder-group__group-rules"
+    >
       <query-builder-child
         v-for="(child, idx) in children"
         :key="idx"
         :config="config"
         :query="child"
         @query-update="addChild(idx, $event)"
+        class="query-builder-group__child"
       />
     </div>
   </div>
@@ -190,5 +196,43 @@ export default class QueryBuilderGroup extends Vue {
 .query-builder-group {
   display: flex;
   flex-direction: column;
+}
+
+.query-builder-group__control {
+}
+
+.query-builder-group__group-selection {
+  padding: 16px;
+  background-color: hsl(0, 0, 95%);
+}
+
+.query-builder-group__group-operator {
+  margin-right: 16px;
+  font-weight: bold;
+}
+
+.query-builder-group__group-control {
+  padding: 16px;
+  display: flex;
+  flex-direction: row;
+}
+
+.query-builder-group__rule-adding-button {
+  margin-left: 8px;
+}
+
+.query-builder-group__spacer {
+  width: 0;
+  margin-left: 12px;
+  margin-right: 12px;
+  border-left: 1px solid hsl(0, 0%, 75%);
+}
+
+.query-builder-group__group-rules {
+  margin: 8px 16px;
+}
+
+.query-builder-group__child:not(:last-child) {
+  margin-bottom: 12px;
 }
 </style>

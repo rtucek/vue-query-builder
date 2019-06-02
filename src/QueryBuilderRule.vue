@@ -1,6 +1,6 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator';
-import { QueryBuilderConfig, Rule } from '@/types';
+import { QueryBuilderConfig, Rule, RuleDefinition } from '@/types';
 import { isQueryBuilderConfig } from '@/guards';
 import { Component as VueComponent } from 'vue';
 
@@ -13,16 +13,20 @@ export default class QueryBuilderRule extends Vue {
 
   @Prop() readonly query!: Rule
 
-  get component(): VueComponent | string {
+  get definition(): RuleDefinition {
     const ruleDefinition = this.config
       .rules
       .find(rule => rule.identifier === this.query.identifier);
 
-    if (!ruleDefinition) {
-      throw new Error(`Invalid identifier "${this.query.identifier}": no rule definition available.`);
+    if (ruleDefinition) {
+      return ruleDefinition;
     }
 
-    return ruleDefinition.component;
+    throw new Error(`Invalid identifier "${this.query.identifier}": no rule definition available.`);
+  }
+
+  get component(): VueComponent | string {
+    return this.definition.component;
   }
 
   ruleUpdate(update: any) {
@@ -39,16 +43,31 @@ export default class QueryBuilderRule extends Vue {
 
 <template>
   <div class="query-builder-rule">
-    <component
-      :is="component"
-      :value="query.value"
-      @input="ruleUpdate"
-    />
+    <span class="query-builder-rule__name" v-text="definition.name" />
+    <div class="query-builder-rule__component-container">
+      <component
+        :is="component"
+        :value="query.value"
+        @input="ruleUpdate"
+      />
+    </div>
   </div>
 </template>
 
 <style lang="scss">
 .query-builder-rule {
-  // may be overloaded from the consumer via global styling...
+  padding: 16px;
+  background-color: hsl(0, 0, 95%);
+  display: flex;
+  flex-direction: row;
+}
+
+.query-builder-rule__name {
+  margin-right: 16px;
+  font-weight: bold;
+}
+
+.query-builder-rule__component-container {
+  flex: 1;
 }
 </style>

@@ -77,13 +77,5 @@ export default class QueryBuilderChild extends Vue {
     :config="config"
     :query="query"
     v-on="$listeners"
-    class="child-container"
   />
 </template>
-
-<style lang="scss">
-.child-container {
-  border: 1px solid black;
-  margin: 8px 16px;
-}
-</style>

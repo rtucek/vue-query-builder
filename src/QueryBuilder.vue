@@ -32,6 +32,7 @@ export default class QueryBuilder extends Vue {
   <query-builder-group
     :config="config"
     :query="query"
+    :depth="0"
     class="query-builder__root"
     @query-update="$emit('update', $event)"
   />

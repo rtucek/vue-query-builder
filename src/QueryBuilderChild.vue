@@ -25,6 +25,8 @@ export default class QueryBuilderChild extends Vue {
     validator: query => isRule(query) || isRuleSet(query),
   }) readonly query!: RuleSet | Rule
 
+  @Prop() readonly depth!: number
+
   get isRule(): boolean {
     return isRule(this.query);
   }
@@ -77,6 +79,7 @@ export default class QueryBuilderChild extends Vue {
       :is="component"
       :config="config"
       :query="query"
+      :depth="depth"
       @query-update="$emit('query-update', $event)"
       class="query-builder-child__component"
     />

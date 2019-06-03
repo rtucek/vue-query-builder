@@ -21,6 +21,8 @@ export default class QueryBuilderGroup extends Vue {
 
   @Prop() readonly query!: RuleSet | null
 
+  @Prop() readonly depth!: number
+
   @Watch('selectedOperator') onSelectedOperatorChange(newOperator: string) {
     this.$emit(
       'query-update',
@@ -62,6 +64,31 @@ export default class QueryBuilderGroup extends Vue {
 
   get rules(): RuleDefinition[] {
     return this.config.rules;
+  }
+
+  get childDepth(): number {
+    return this.depth + 1;
+  }
+
+  get childDepthClass(): string {
+    return `query-builder-group__group-children--depth-${this.childDepth}`;
+  }
+
+  get borderColor(): string {
+    if (this.config.colors && this.config.colors.length > 0) {
+      return this.config.colors[this.depth % this.config.colors.length];
+    }
+
+    return '';
+  }
+
+  get getBorderStyle(): string {
+    if (this.borderColor) {
+      return `border-color: ${this.borderColor}`;
+    }
+
+    // Ignore borders
+    return 'border-left: 0';
   }
 
   addRule(): void {
@@ -191,13 +218,16 @@ export default class QueryBuilderGroup extends Vue {
     </div>
     <div
       v-if="children.length > 0"
-      class="query-builder-group__group-rules"
+      class="query-builder-group__group-children"
+      :class="childDepthClass"
+      :style="getBorderStyle"
     >
       <query-builder-child
         v-for="(child, idx) in children"
         :key="idx"
         :config="config"
         :query="child"
+        :depth="childDepth"
         @query-update="addChild(idx, $event)"
         @delete-child="deleteChild(idx)"
         class="query-builder-group__child"
@@ -242,8 +272,11 @@ export default class QueryBuilderGroup extends Vue {
   border-left: 1px solid hsl(0, 0%, 75%);
 }
 
-.query-builder-group__group-rules {
+.query-builder-group__group-children {
   margin: 8px 16px;
+  margin-bottom: 0;
+  border-left-width: 2px;
+  border-left-style: solid;
 }
 
 .query-builder-group__child:not(:last-child) {

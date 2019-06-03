@@ -30,4 +30,5 @@ export interface RuleDefinition {
 export interface QueryBuilderConfig {
   operators: OperatorDefinition[],
   rules: RuleDefinition[],
+  colors?: string[],
 }

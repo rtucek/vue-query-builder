@@ -79,5 +79,9 @@ export function isQueryBuilderConfig(param: any): param is QueryBuilderConfig {
   return Array.isArray(param.operators)
     && param.operators.every((operator: any) => isOperatorDefinition(operator))
     && Array.isArray(param.rules)
-    && param.rules.every((rule: any) => isRuleDefinition(rule));
+    && param.rules.every((rule: any) => isRuleDefinition(rule))
+    && (
+      (!param.rules)
+      || (Array.isArray(param.colors) && param.colors.every((color: any) => typeof color === 'string'))
+    );
 }

@@ -56,8 +56,9 @@ export default class QueryBuilderRule extends Vue {
 
 <style lang="scss">
 .query-builder-rule {
-  padding: 16px;
   background-color: hsl(0, 0, 95%);
+  padding: 16px;
+  padding-right: 32px;
   display: flex;
   flex-direction: row;
 }

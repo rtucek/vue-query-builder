@@ -132,6 +132,19 @@ export default class QueryBuilderGroup extends Vue {
       } as RuleSet,
     );
   }
+
+  deleteChild(idx: number): void {
+    const children = [...this.children];
+    children.splice(idx, 1);
+
+    this.$emit(
+      'query-update',
+      {
+        operatorIdentifier: this.selectedOperator,
+        children,
+      } as RuleSet,
+    );
+  }
 }
 </script>
 
@@ -186,6 +199,7 @@ export default class QueryBuilderGroup extends Vue {
         :config="config"
         :query="child"
         @query-update="addChild(idx, $event)"
+        @delete-child="deleteChild(idx)"
         class="query-builder-group__child"
       />
     </div>

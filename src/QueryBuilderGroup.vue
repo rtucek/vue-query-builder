@@ -91,6 +91,16 @@ export default class QueryBuilderGroup extends Vue {
     return 'border-left: 0';
   }
 
+  get groupOperatorSlotProps(): Object {
+    return {
+      selectedOperator: this.selectedOperator,
+      operators: this.operators,
+      selectedOperatorUpdate: (newOperator: string) => {
+        this.selectedOperator = newOperator;
+      },
+    };
+  }
+
   addRule(): void {
     const children = [...this.children];
 
@@ -178,18 +188,26 @@ export default class QueryBuilderGroup extends Vue {
 <template>
   <div class="query-builder-group">
     <div class="query-builder-group__control">
-      <div class="query-builder-group__group-selection">
-        <span class="query-builder-group__group-operator">Operator</span>
-        <select v-model="selectedOperator">
-          <option disabled value="">Select an operator</option>
-          <option
-            v-for="operator in operators"
-            :key="operator.identifier"
-            :value="operator.identifier"
-            v-text="operator.name"
-          />
-        </select>
-      </div>
+      <template v-if="$scopedSlots.groupOperator">
+        <slot
+          name="groupOperator"
+          v-bind="groupOperatorSlotProps"
+        />
+      </template>
+      <template v-else>
+        <div class="query-builder-group__group-selection">
+          <span class="query-builder-group__group-operator">Operator</span>
+          <select v-model="selectedOperator">
+            <option disabled value="">Select an operator</option>
+            <option
+              v-for="operator in operators"
+              :key="operator.identifier"
+              :value="operator.identifier"
+              v-text="operator.name"
+            />
+          </select>
+        </div>
+      </template>
       <div class="query-builder-group__group-control">
         <select v-model="selectedRule">
           <option disabled value="">Select a rule</option>
@@ -207,7 +225,7 @@ export default class QueryBuilderGroup extends Vue {
         >
           Add Rule
         </button>
-        <div class="query-builder-group__spacer" />
+        <div class="query-builder-group__spacer"/>
         <button
           @click="newGroup"
           class="query-builder-group__group-adding-button"
@@ -231,7 +249,17 @@ export default class QueryBuilderGroup extends Vue {
         @query-update="addChild(idx, $event)"
         @delete-child="deleteChild(idx)"
         class="query-builder-group__child"
-      />
+      >
+        <template
+          v-for="(_, slotName) in $scopedSlots"
+          v-slot:[slotName]="props"
+        >
+          <slot
+            :name="slotName"
+            v-bind="props"
+          />
+        </template>
+      </query-builder-child>
     </div>
   </div>
 </template>

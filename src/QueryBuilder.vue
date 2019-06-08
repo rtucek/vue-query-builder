@@ -35,7 +35,17 @@ export default class QueryBuilder extends Vue {
     :depth="0"
     class="query-builder__root"
     @query-update="$emit('update', $event)"
-  />
+  >
+    <template
+      v-for="(_, slotName) in $scopedSlots"
+      v-slot:[slotName]="props"
+    >
+      <slot
+        :name="slotName"
+        v-bind="props"
+      />
+    </template>
+  </query-builder-group>
 </template>
 
 <style lang="scss" scoped>

@@ -82,7 +82,17 @@ export default class QueryBuilderChild extends Vue {
       :depth="depth"
       @query-update="$emit('query-update', $event)"
       class="query-builder-child__component"
-    />
+    >
+      <template
+        v-for="(_, slotName) in $scopedSlots"
+        v-slot:[slotName]="props"
+      >
+        <slot
+          :name="slotName"
+          v-bind="props"
+        />
+      </template>
+    </component>
     <button
       aria-label="Close"
       class="query-builder-child__delete-child"

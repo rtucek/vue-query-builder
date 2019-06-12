@@ -4,6 +4,7 @@ import {
 } from 'vue-property-decorator';
 import {
   QueryBuilderConfig, RuleSet, Rule, OperatorDefinition, RuleDefinition,
+  GroupOperatorSlotProps, GroupCtrlSlotProps,
 } from '@/types';
 import { isRuleSet, isRule, isQueryBuilderConfig } from '@/guards';
 import QueryBuilderChild from './QueryBuilderChild.vue';
@@ -91,13 +92,26 @@ export default class QueryBuilderGroup extends Vue {
     return 'border-left: 0';
   }
 
-  get groupOperatorSlotProps(): Object {
+  get groupOperatorSlotProps(): GroupOperatorSlotProps {
     return {
-      selectedOperator: this.selectedOperator,
+      currentOperator: this.selectedOperator,
       operators: this.operators,
-      selectedOperatorUpdate: (newOperator: string) => {
+      updateCurrentOperator: (newOperator: string) => {
         this.selectedOperator = newOperator;
       },
+    };
+  }
+
+  get groupControlSlotProps(): GroupCtrlSlotProps {
+    return {
+      rules: this.rules,
+      addRule: (newRule: string) => {
+        const currentRule = this.selectedRule;
+        this.selectedRule = newRule;
+        this.addRule();
+        this.selectedRule = currentRule;
+      },
+      newGroup: (): void => this.newGroup(),
     };
   }
 
@@ -208,31 +222,39 @@ export default class QueryBuilderGroup extends Vue {
           </select>
         </div>
       </template>
-      <div class="query-builder-group__group-control">
-        <select v-model="selectedRule">
-          <option disabled value="">Select a rule</option>
-          <option
-            v-for="rule in rules"
-            :key="rule.identifier"
-            :value="rule.identifier"
-            v-text="rule.name"
-          />
-        </select>
-        <button
-          :disabled="selectedRule === ''"
-          @click="addRule"
-          class="query-builder-group__rule-adding-button"
-        >
-          Add Rule
-        </button>
-        <div class="query-builder-group__spacer"/>
-        <button
-          @click="newGroup"
-          class="query-builder-group__group-adding-button"
-        >
-          Add Group
-        </button>
-      </div>
+      <template v-if="$scopedSlots.groupControl">
+        <slot
+          name="groupControl"
+          v-bind="groupControlSlotProps"
+        />
+      </template>
+      <template v-else>
+        <div class="query-builder-group__group-control">
+          <select v-model="selectedRule">
+            <option disabled value="">Select a rule</option>
+            <option
+              v-for="rule in rules"
+              :key="rule.identifier"
+              :value="rule.identifier"
+              v-text="rule.name"
+            />
+          </select>
+          <button
+            :disabled="selectedRule === ''"
+            @click="addRule"
+            class="query-builder-group__rule-adding-button"
+          >
+            Add Rule
+          </button>
+          <div class="query-builder-group__spacer"/>
+          <button
+            @click="newGroup"
+            class="query-builder-group__group-adding-button"
+          >
+            Add Group
+          </button>
+        </div>
+      </template>
     </div>
     <div
       v-if="children.length > 0"

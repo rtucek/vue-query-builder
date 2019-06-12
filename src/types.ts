@@ -32,3 +32,15 @@ export interface QueryBuilderConfig {
   rules: RuleDefinition[],
   colors?: string[],
 }
+
+export interface GroupOperatorSlotProps {
+  currentOperator: string,
+  operators: OperatorDefinition[],
+  updateCurrentOperator: (newOperator: string) => void,
+}
+
+export interface GroupCtrlSlotProps {
+  rules: RuleDefinition[],
+  addRule: (newRule: string) => void,
+  newGroup: () => void,
+}

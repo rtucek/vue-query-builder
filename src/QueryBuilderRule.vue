@@ -1,6 +1,8 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator';
-import { QueryBuilderConfig, Rule, RuleDefinition } from '@/types';
+import {
+  QueryBuilderConfig, Rule, RuleDefinition, RuleSlotProps,
+} from '@/types';
 import { isQueryBuilderConfig } from '@/guards';
 import { Component as VueComponent } from 'vue';
 
@@ -29,6 +31,14 @@ export default class QueryBuilderRule extends Vue {
     return this.definition.component;
   }
 
+  get ruleSlotProps(): RuleSlotProps {
+    return {
+      ruleComponent: this.component,
+      ruleData: this.query.value,
+      updateRuleData: (ruleData: any) => this.ruleUpdate(ruleData),
+    };
+  }
+
   ruleUpdate(update: any) {
     this.$emit(
       'query-update',
@@ -42,15 +52,23 @@ export default class QueryBuilderRule extends Vue {
 </script>
 
 <template>
-  <div class="query-builder-rule">
-    <span class="query-builder-rule__name" v-text="definition.name" />
-    <div class="query-builder-rule__component-container">
-      <component
-        :is="component"
-        :value="query.value"
-        @input="ruleUpdate"
+  <div class="query-builder-rule" >
+    <template v-if="$scopedSlots.rule">
+      <slot
+          name="rule"
+          v-bind="ruleSlotProps"
       />
-    </div>
+    </template>
+    <template v-else>
+      <span class="query-builder-rule__name" v-text="definition.name" />
+      <div class="query-builder-rule__component-container">
+        <component
+          :is="component"
+          :value="query.value"
+          @input="ruleUpdate"
+        />
+      </div>
+    </template>
   </div>
 </template>
 

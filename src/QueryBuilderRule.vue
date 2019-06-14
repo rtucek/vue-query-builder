@@ -31,6 +31,14 @@ export default class QueryBuilderRule extends Vue {
     return this.definition.component;
   }
 
+  get ruleData(): any {
+    return this.query.value;
+  }
+
+  set ruleData(update: any) {
+    this.ruleUpdate(update);
+  }
+
   get ruleSlotProps(): RuleSlotProps {
     return {
       ruleComponent: this.component,
@@ -64,8 +72,7 @@ export default class QueryBuilderRule extends Vue {
       <div class="query-builder-rule__component-container">
         <component
           :is="component"
-          :value="query.value"
-          @input="ruleUpdate"
+          v-model="ruleData"
         />
       </div>
     </template>

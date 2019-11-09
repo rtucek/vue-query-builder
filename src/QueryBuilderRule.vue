@@ -1,10 +1,10 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator';
+import { Component as VueComponent } from 'vue';
 import {
   QueryBuilderConfig, Rule, RuleDefinition, RuleSlotProps,
 } from '@/types';
 import { isQueryBuilderConfig } from '@/guards';
-import { Component as VueComponent } from 'vue';
 
 @Component
 export default class QueryBuilderRule extends Vue {

@@ -129,5 +129,6 @@ export default class QueryBuilderChild extends Vue {
   background-color: transparent;
   border: 0;
   appearance: none;
+  cursor: pointer;
 }
 </style>

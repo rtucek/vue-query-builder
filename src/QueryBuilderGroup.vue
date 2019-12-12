@@ -20,7 +20,7 @@ export default class QueryBuilderGroup extends Vue {
     validator: param => isQueryBuilderConfig(param),
   }) readonly config!: QueryBuilderConfig
 
-  @Prop() readonly query!: RuleSet | null
+  @Prop() readonly query!: RuleSet
 
   @Prop() readonly depth!: number
 
@@ -28,7 +28,7 @@ export default class QueryBuilderGroup extends Vue {
     this.$emit(
       'query-update',
       {
-        ...this.ruleSet,
+        ...this.query,
         ...{ operatorIdentifier: this.selectedOperator },
       },
     );
@@ -40,23 +40,8 @@ export default class QueryBuilderGroup extends Vue {
 
   selectedRule: string = ''
 
-  get ruleSet(): RuleSet {
-    if (this.query) {
-      return this.query;
-    }
-
-    return {
-      operatorIdentifier: this.selectedOperator,
-      children: this.children,
-    };
-  }
-
   get children(): Array<RuleSet | Rule> {
-    if (this.query === null) {
-      return [];
-    }
-
-    return this.query.children;
+    return [...this.query.children];
   }
 
   get operators(): OperatorDefinition[] {
@@ -171,9 +156,9 @@ export default class QueryBuilderGroup extends Vue {
     );
   }
 
-  addChild(idx: number, child: RuleSet | Rule): void {
+  updateChild(position: number, newChild: RuleSet | Rule): void {
     const children = [...this.children];
-    children.splice(idx, 1, child);
+    children.splice(position, 1, newChild); // Replace child
 
     this.$emit(
       'query-update',
@@ -268,7 +253,7 @@ export default class QueryBuilderGroup extends Vue {
         :config="config"
         :query="child"
         :depth="childDepth"
-        @query-update="addChild(idx, $event)"
+        @query-update="updateChild(idx, $event)"
         @delete-child="deleteChild(idx)"
         class="query-builder-group__child"
       >
@@ -292,8 +277,8 @@ export default class QueryBuilderGroup extends Vue {
   flex-direction: column;
 }
 
-.query-builder-group__control {
-}
+// .query-builder-group__control {
+// }
 
 .query-builder-group__group-selection {
   padding: 16px;

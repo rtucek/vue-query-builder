@@ -45,6 +45,6 @@ body {
 #app {
   margin: 30px auto;
   width: 90%;
-  border: 1px solid black;
+  border: 1px solid hsl(0, 0%, 75%);
 }
 </style>

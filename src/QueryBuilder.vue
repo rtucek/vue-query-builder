@@ -1,7 +1,5 @@
 <script lang="ts">
-import {
-  Component, Vue, Prop, Model,
-} from 'vue-property-decorator';
+import { Component, Vue, Prop } from 'vue-property-decorator';
 import { isQueryBuilderConfig, isRuleSet } from '@/guards';
 import { RuleSet, QueryBuilderConfig } from '@/types';
 import QueryBuilderGroup from './QueryBuilderGroup.vue';
@@ -10,31 +8,42 @@ import QueryBuilderGroup from './QueryBuilderGroup.vue';
   components: {
     QueryBuilderGroup,
   },
-  model: {
-    prop: 'query',
-    event: 'update',
-  },
 })
 export default class QueryBuilder extends Vue {
-  @Model('update', {
-    required: false,
+  @Prop({
+    required: true,
     validator: query => query === null || isRuleSet(query),
-  }) readonly query!: RuleSet | null
+  }) readonly value!: RuleSet | null
 
   @Prop({
     required: true,
     validator: param => isQueryBuilderConfig(param),
-  }) readonly config!: QueryBuilderConfig | null
+  }) readonly config!: QueryBuilderConfig
+
+  get ruleSet(): RuleSet {
+    if (this.value) {
+      return this.value;
+    }
+
+    return {
+      operatorIdentifier: this.config.operators[0].identifier,
+      children: [],
+    };
+  }
+
+  updateQuery(newQuery: RuleSet): void {
+    this.$emit('input', { ...newQuery });
+  }
 }
 </script>
 
 <template>
   <query-builder-group
     :config="config"
-    :query="query"
+    :query="ruleSet"
     :depth="0"
     class="query-builder__root"
-    @query-update="$emit('update', $event)"
+    @query-update="updateQuery"
   >
     <template
       v-for="(_, slotName) in $scopedSlots"

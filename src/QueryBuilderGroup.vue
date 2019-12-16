@@ -1,20 +1,21 @@
 <script lang="ts">
-import {
-  Component, Vue, Prop,
-} from 'vue-property-decorator';
+import { Component, Vue, Prop, Watch, Inject } from 'vue-property-decorator';
+import Draggable, { MoveEvent, Moved, Added, Removed } from 'vuedraggable';
 import {
   QueryBuilderConfig, RuleSet, Rule, OperatorDefinition, RuleDefinition,
-  GroupOperatorSlotProps, GroupCtrlSlotProps,
+  GroupOperatorSlotProps, GroupCtrlSlotProps, QueryBuilderGroup as QueryBuilderGroupInterface,
 } from '@/types';
 import { isRuleSet, isRule, isQueryBuilderConfig } from '@/guards';
 import QueryBuilderChild from './QueryBuilderChild.vue';
+import MergeTrap from '@/MergeTrap';
 
 @Component({
   components: {
+    Draggable,
     QueryBuilderChild,
   },
 })
-export default class QueryBuilderGroup extends Vue {
+export default class QueryBuilderGroup extends Vue implements QueryBuilderGroupInterface {
   @Prop({
     required: true,
     validator: param => isQueryBuilderConfig(param),
@@ -23,6 +24,8 @@ export default class QueryBuilderGroup extends Vue {
   @Prop() readonly query!: RuleSet
 
   @Prop() readonly depth!: number
+
+  @Inject() readonly getMergeTrap!: () => MergeTrap
 
   get selectedOperator(): string {
     return this.query.operatorIdentifier;
@@ -38,10 +41,78 @@ export default class QueryBuilderGroup extends Vue {
     );
   }
 
+  trap: ((position: number, newChild: RuleSet | Rule) => void) | null = null;
+
   selectedRule: string = ''
 
   get children(): Array<RuleSet | Rule> {
     return [...this.query.children];
+  }
+
+  updateSort(ev: MoveEvent<RuleSet | Rule>): void {
+    if (ev.moved) {
+      this.moveSortedChild(ev.moved);
+
+      return;
+    }
+
+    if (ev.added) {
+      this.addSortedChild(ev.added);
+
+      return;
+    }
+
+    if (ev.removed) {
+      this.removeSortedChild(ev.removed);
+    }
+  }
+
+  // Item has been moved on the same group.
+  // We can just us the new children for updating the current state.
+  moveSortedChild(move: Moved<RuleSet | Rule>): void {
+    const children = [...this.children];
+
+    children.splice(move.newIndex, 0, children.splice(move.oldIndex, 1)[0]);
+
+    this.$emit(
+      'query-update',
+      {
+        operatorIdentifier: this.selectedOperator,
+        children,
+      } as RuleSet,
+    );
+  }
+
+  addSortedChild(added: Added<RuleSet | Rule>): void {
+    const children = [...this.children];
+
+    children.splice(added.newIndex, 0, added.element);
+
+    this.getMergeTrap().registerSortUpdate({
+      component: this,
+      ev: {
+        operatorIdentifier: this.selectedOperator,
+        children,
+      } as RuleSet,
+      adding: true,
+      affectedIdx: added.newIndex,
+    });
+  }
+
+  removeSortedChild(removed: Removed<RuleSet | Rule>): void {
+    const children = [...this.children];
+
+    children.splice(removed.oldIndex, 1);
+
+    this.getMergeTrap().registerSortUpdate({
+      component: this,
+      ev: {
+        operatorIdentifier: this.selectedOperator,
+        children,
+      } as RuleSet,
+      adding: false,
+      affectedIdx: removed.oldIndex,
+    });
   }
 
   get operators(): OperatorDefinition[] {
@@ -106,6 +177,16 @@ export default class QueryBuilderGroup extends Vue {
     };
   }
 
+  /* eslint class-methods-use-this: "off" */
+  get dragOptions() {
+    return {
+      animation: 300,
+      group: 'sorting-query',
+      disabled: false,
+      ghostClass: 'ghost',
+    };
+  }
+
   addRule(): void {
     const children = [...this.children];
 
@@ -163,6 +244,12 @@ export default class QueryBuilderGroup extends Vue {
   }
 
   updateChild(position: number, newChild: RuleSet | Rule): void {
+    if (this.trap) {
+      this.trap(position, newChild);
+
+      return;
+    }
+
     const children = [...this.children];
     children.splice(position, 1, newChild); // Replace child
 
@@ -247,11 +334,14 @@ export default class QueryBuilderGroup extends Vue {
         </div>
       </template>
     </div>
-    <div
-      v-if="children.length > 0"
+    <draggable
       class="query-builder-group__group-children"
       :class="childDepthClass"
       :style="getBorderStyle"
+      :value="children"
+      @change="updateSort"
+      tag="div"
+      v-bind="dragOptions"
     >
       <query-builder-child
         v-for="(child, idx) in children"
@@ -273,7 +363,7 @@ export default class QueryBuilderGroup extends Vue {
           />
         </template>
       </query-builder-child>
-    </div>
+    </draggable>
   </div>
 </template>
 

@@ -2,6 +2,7 @@
 import {
   Component, Vue, Prop, Watch,
 } from 'vue-property-decorator';
+import Draggable from 'vuedraggable';
 import {
   QueryBuilderConfig, RuleSet, Rule, OperatorDefinition, RuleDefinition,
   GroupOperatorSlotProps, GroupCtrlSlotProps,
@@ -11,6 +12,7 @@ import QueryBuilderChild from './QueryBuilderChild.vue';
 
 @Component({
   components: {
+    Draggable,
     QueryBuilderChild,
   },
 })
@@ -57,6 +59,24 @@ export default class QueryBuilderGroup extends Vue {
     }
 
     return this.query.children;
+  }
+
+  resortChildren(newChildren: (RuleSet | Rule)[]): void {
+    const children = [...this.children];
+
+    if (children.length === newChildren.length) {
+      // Item has been moved on the same group.
+      // We can just us the new children for updating the current state.
+      this.$emit(
+        'query-update',
+        {
+          operatorIdentifier: this.selectedOperator,
+          children: newChildren,
+        } as RuleSet,
+      );
+    }
+
+    // TODO: handle add & remove...
   }
 
   get operators(): OperatorDefinition[] {
@@ -112,6 +132,16 @@ export default class QueryBuilderGroup extends Vue {
         this.selectedRule = currentRule;
       },
       newGroup: (): void => this.newGroup(),
+    };
+  }
+
+  /* eslint class-methods-use-this: "off" */
+  get dragOptions() {
+    return {
+      animation: 300,
+      group: 'sorting-query',
+      disabled: false,
+      ghostClass: 'ghost',
     };
   }
 
@@ -256,11 +286,14 @@ export default class QueryBuilderGroup extends Vue {
         </div>
       </template>
     </div>
-    <div
-      v-if="children.length > 0"
+    <draggable
       class="query-builder-group__group-children"
       :class="childDepthClass"
       :style="getBorderStyle"
+      :value="children"
+      @input="resortChildren"
+      tag="div"
+      v-bind="dragOptions"
     >
       <query-builder-child
         v-for="(child, idx) in children"
@@ -282,7 +315,7 @@ export default class QueryBuilderGroup extends Vue {
           />
         </template>
       </query-builder-child>
-    </div>
+    </draggable>
   </div>
 </template>
 

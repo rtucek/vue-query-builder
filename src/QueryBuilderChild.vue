@@ -1,12 +1,12 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator';
+import { Component as VueComponent } from 'vue';
 import {
   RuleSet, Rule, QueryBuilderConfig, RuleDefinition, OperatorDefinition, Operator,
 } from '@/types';
 import { isRule, isRuleSet, isQueryBuilderConfig } from '@/guards';
 import QueryBuilderGroup from '@/QueryBuilderGroup.vue';
 import QueryBuilderRule from '@/QueryBuilderRule.vue';
-import { Component as VueComponent } from 'vue';
 
 @Component({
   components: {

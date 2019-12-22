@@ -47,7 +47,7 @@ export default class QueryBuilderChild extends Vue {
     return ruleDefinition || null;
   }
 
-  get component(): VueComponent | string {
+  get component(): VueComponent {
     if (this.isRule && this.ruleDefinition) {
       return QueryBuilderRule;
     }

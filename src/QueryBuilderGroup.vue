@@ -1,6 +1,6 @@
 <script lang="ts">
 import {
-  Component, Vue, Prop, Watch,
+  Component, Vue, Prop, Watch, Inject,
 } from 'vue-property-decorator';
 import Draggable from 'vuedraggable';
 import {
@@ -25,6 +25,8 @@ export default class QueryBuilderGroup extends Vue {
   @Prop() readonly query!: RuleSet | null
 
   @Prop() readonly depth!: number
+
+  @Inject() readonly getNextUpdateTick!: () => Promise<void>
 
   @Watch('selectedOperator') onSelectedOperatorChange(newOperator: string) {
     this.$emit(
@@ -74,9 +76,23 @@ export default class QueryBuilderGroup extends Vue {
           children: newChildren,
         } as RuleSet,
       );
+
+      return;
     }
 
-    // TODO: handle add & remove...
+    // Either added or removed from group.
+    // Trigger a trap, so the parent QueryBuilder component is aware of that the next 2 update
+    // events shall be merged into one update.
+    this.getNextUpdateTick()
+      .then(() => {
+        this.$emit(
+          'query-update',
+          {
+            operatorIdentifier: this.selectedOperator,
+            children: newChildren,
+          } as RuleSet,
+        );
+      });
   }
 
   get operators(): OperatorDefinition[] {

@@ -12,6 +12,8 @@ module.exports = {
     'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     'class-methods-use-this': 'warn',
+    'no-use-before-define': ['error', { functions: false }],
+    'no-param-reassign': ['error', { props: false }],
   },
   parserOptions: {
     parser: '@typescript-eslint/parser',

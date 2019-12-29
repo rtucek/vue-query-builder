@@ -1,4 +1,5 @@
 import Vue, { Component } from 'vue';
+import { SortableOptions } from 'sortablejs';
 
 export interface Rule {
   identifier: string,
@@ -26,6 +27,7 @@ export interface QueryBuilderConfig {
   operators: OperatorDefinition[],
   rules: RuleDefinition[],
   colors?: string[],
+  dragging?: SortableOptions,
 }
 
 export interface GroupOperatorSlotProps {

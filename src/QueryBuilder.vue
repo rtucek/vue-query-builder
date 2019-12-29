@@ -52,6 +52,22 @@ export default class QueryBuilder extends Vue {
     };
   }
 
+  get queryBuiderConfig(): QueryBuilderConfig {
+    if (!this.config.dragging) {
+      return this.config;
+    }
+
+    // Ensure group parameter is unique... otherwise query builder instances would be able to drag
+    // across 2 different instances and this is currently not supported.
+    return {
+      ...this.config,
+      dragging: {
+        ...this.config.dragging,
+        group: `${new Date().getTime() * Math.random()}`,
+      },
+    };
+  }
+
   updateQuery(newQuery: RuleSet): void {
     this.trap = null;
     this.$emit('input', { ...newQuery });
@@ -71,7 +87,7 @@ export default class QueryBuilder extends Vue {
 
 <template>
   <query-builder-group
-    :config="config"
+    :config="queryBuiderConfig"
     :query="ruleSet"
     :depth="0"
     class="query-builder__root"

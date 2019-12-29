@@ -1,6 +1,11 @@
 <script lang="ts">
-import { Component, Vue, Prop, Watch, Inject } from 'vue-property-decorator';
-import Draggable, { MoveEvent, Moved, Added, Removed } from 'vuedraggable';
+import {
+  Component, Vue, Prop, Inject,
+} from 'vue-property-decorator';
+import Draggable, {
+  MoveEvent, Moved, Added, Removed,
+} from 'vuedraggable';
+import { SortableOptions } from 'sortablejs';
 import {
   QueryBuilderConfig, RuleSet, Rule, OperatorDefinition, RuleDefinition,
   GroupOperatorSlotProps, GroupCtrlSlotProps, QueryBuilderGroup as QueryBuilderGroupInterface,
@@ -177,13 +182,13 @@ export default class QueryBuilderGroup extends Vue implements QueryBuilderGroupI
     };
   }
 
-  /* eslint class-methods-use-this: "off" */
-  get dragOptions() {
+  get dragOptions(): SortableOptions {
+    if (this.config.dragging) {
+      return this.config.dragging;
+    }
+
     return {
-      animation: 300,
-      group: 'sorting-query',
-      disabled: false,
-      ghostClass: 'ghost',
+      disabled: true,
     };
   }
 

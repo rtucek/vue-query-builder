@@ -25,6 +25,13 @@ export default class QueryBuilder extends Vue {
       return this.value;
     }
 
+    if (this.config.operators.length === 0) {
+      return {
+        operatorIdentifier: '',
+        children: [],
+      };
+    }
+
     return {
       operatorIdentifier: this.config.operators[0].identifier,
       children: [],

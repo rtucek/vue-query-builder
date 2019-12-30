@@ -169,8 +169,8 @@ describe('Test basic functionality of QueryBuilder.vue', () => {
     });
 
     app.findAll(QueryBuilderRule)
-      .filter((qbr: Wrapper<QueryBuilderRule>) => {
-        const vm: QueryBuilderRule = qbr.vm as QueryBuilderRule;
+      .filter((qbr: Wrapper<Vue>) => {
+        const vm = qbr.vm as QueryBuilderRule;
 
         return vm.$props.query.identifier === 'txt'
           && vm.$props.query.value === 'B';
@@ -294,18 +294,18 @@ describe('Test basic functionality of QueryBuilder.vue', () => {
     const app = mount(App, {
       data,
     });
-    const wrapper: Wrapper<QueryBuilder> = app.find(QueryBuilder);
+    const wrapper = app.find(QueryBuilder) as Wrapper<QueryBuilder>;
 
-    const qbGroup: Wrapper<QueryBuilderGroup> = wrapper.findAll(QueryBuilderGroup)
-      .filter((qbg: Wrapper<QueryBuilderGroup>) => {
-        const vm: QueryBuilderGroup = qbg.vm as QueryBuilderGroup;
+    const qbGroup = wrapper.findAll(QueryBuilderGroup)
+      .filter((qbg: Wrapper<Vue>) => {
+        const vm = qbg.vm as QueryBuilderGroup;
 
         return vm.$data.selectedOperator === 'and'
             && vm.$props.query.children.length === 3
             && vm.$props.query.children[0].identifier === 'txt'
             && vm.$props.query.children[0].value === 'c';
       })
-      .at(0);
+      .at(0) as Wrapper<QueryBuilderGroup>;
 
     // Assert operators are available
     const options = qbGroup.find('.query-builder-group__group-selection select').findAll('option');
@@ -387,15 +387,15 @@ describe('Test basic functionality of QueryBuilder.vue', () => {
 
     // Edit a rule
     expect(qbGroup.vm.$props.query.children).toHaveLength(3);
-    const rules: WrapperArray<QueryBuilderRule> = qbGroup.findAll(QueryBuilderRule);
+    const rules = qbGroup.findAll(QueryBuilderRule) as WrapperArray<QueryBuilderRule>;
     expect(rules).toHaveLength(4);
-    const rule: Wrapper<QueryBuilderRule> = rules.filter((qbr: Wrapper<QueryBuilderRule>) => {
-      const query: Rule = qbr.vm.$props.query as Rule;
+    const rule = rules.filter((qbr: Wrapper<Vue>) => {
+      const query = qbr.vm.$props.query as Rule;
 
       return query.identifier === 'txt'
-          && query.value === 'd';
+            && query.value === 'd';
     })
-      .at(0);
+      .at(0) as Wrapper<QueryBuilderRule>;
 
     rule.find('input').setValue('D');
     expect(app.vm.$data.query).toStrictEqual({

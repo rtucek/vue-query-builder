@@ -29,7 +29,7 @@ export default class QueryBuilderGroup extends Vue {
       'query-update',
       {
         ...this.query,
-        ...{ operatorIdentifier: this.selectedOperator },
+        operatorIdentifier: this.selectedOperator,
       },
     );
   }

@@ -10,11 +10,6 @@ export interface RuleSet {
   children: Array<RuleSet | Rule>,
 }
 
-export interface Operator {
-  identifier: string,
-  value: string,
-}
-
 export interface OperatorDefinition {
   identifier: string,
   name: string,

@@ -1,5 +1,5 @@
 import {
-  Rule, RuleSet, Operator, QueryBuilderConfig, OperatorDefinition, RuleDefinition,
+  Rule, RuleSet, QueryBuilderConfig, OperatorDefinition, RuleDefinition,
 } from '@/types';
 
 export function isRule(param: any): param is Rule {
@@ -27,20 +27,6 @@ export function isRuleSet(param: any): param is RuleSet {
 
   return Array.isArray(param.children)
     && param.children.every((child: any) => isRule(child) || isRuleSet(child));
-}
-
-export function isOperator(param: any): param is Operator {
-  if (typeof param !== 'object') {
-    return false;
-  }
-
-  if (typeof param.identifier !== 'string') {
-    return false;
-  }
-
-  const { hasOwnProperty } = Object.prototype;
-
-  return hasOwnProperty.call(param, 'value');
 }
 
 export function isOperatorDefinition(param: any): param is OperatorDefinition {

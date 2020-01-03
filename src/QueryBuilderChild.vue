@@ -2,7 +2,7 @@
 import { Component, Vue, Prop } from 'vue-property-decorator';
 import { Component as VueComponent } from 'vue';
 import {
-  RuleSet, Rule, QueryBuilderConfig, RuleDefinition, OperatorDefinition, Operator,
+  RuleSet, Rule, QueryBuilderConfig, RuleDefinition,
 } from '@/types';
 import { isRule, isRuleSet, isQueryBuilderConfig } from '@/guards';
 import QueryBuilderGroup from '@/QueryBuilderGroup.vue';

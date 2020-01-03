@@ -1,6 +1,6 @@
 <script lang="ts">
 import {
-  Component, Vue, Prop, Watch,
+  Component, Vue, Prop,
 } from 'vue-property-decorator';
 import {
   QueryBuilderConfig, RuleSet, Rule, OperatorDefinition, RuleDefinition,
@@ -24,19 +24,19 @@ export default class QueryBuilderGroup extends Vue {
 
   @Prop() readonly depth!: number
 
-  @Watch('selectedOperator') onSelectedOperatorChange(newOperator: string) {
+  get selectedOperator(): string {
+    return this.query.operatorIdentifier;
+  }
+
+  set selectedOperator(operatorIdentifier: string) {
     this.$emit(
       'query-update',
       {
         ...this.query,
-        operatorIdentifier: this.selectedOperator,
-      },
+        operatorIdentifier,
+      } as RuleSet,
     );
   }
-
-  selectedOperator: string = this.query
-    ? this.query.operatorIdentifier
-    : this.config.operators[0].identifier;
 
   selectedRule: string = ''
 
@@ -82,7 +82,13 @@ export default class QueryBuilderGroup extends Vue {
       currentOperator: this.selectedOperator,
       operators: this.operators,
       updateCurrentOperator: (newOperator: string) => {
-        this.selectedOperator = newOperator;
+        this.$emit(
+          'query-update',
+          {
+            ...this.query,
+            operatorIdentifier: newOperator,
+          } as RuleSet,
+        );
       },
     };
   }
@@ -108,7 +114,7 @@ export default class QueryBuilderGroup extends Vue {
       throw new Error(`Rule identifier "${this.selectedRule}" is invalid.`);
     }
 
-    if (typeof selectedRule.initialValue === 'object') {
+    if (typeof selectedRule.initialValue === 'object' && selectedRule.initialValue !== null) {
       throw new Error(`"initialValue" of "${selectedRule.identifier}" must not be an object - use a factory function!`);
     }
 

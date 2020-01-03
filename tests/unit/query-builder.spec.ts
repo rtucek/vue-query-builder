@@ -297,10 +297,10 @@ describe('Test basic functionality of QueryBuilder.vue', () => {
     const wrapper = app.find(QueryBuilder) as Wrapper<QueryBuilder>;
 
     const qbGroup = wrapper.findAll(QueryBuilderGroup)
-      .filter((qbg: Wrapper<Vue>) => {
-        const vm = qbg.vm as QueryBuilderGroup;
+      .filter((qbg: Wrapper<QueryBuilderGroup>) => {
+        const vm = qbg.vm as (QueryBuilderGroup & { selectedOperator: string });
 
-        return vm.$data.selectedOperator === 'and'
+        return vm.selectedOperator === 'and'
             && vm.$props.query.children.length === 3
             && vm.$props.query.children[0].identifier === 'txt'
             && vm.$props.query.children[0].value === 'c';

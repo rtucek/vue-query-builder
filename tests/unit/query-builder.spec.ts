@@ -1,11 +1,10 @@
-import { mount, Wrapper, WrapperArray } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import Input from '../components/Input.vue';
 import Number from '../components/Number.vue';
 import QueryBuilder from '@/QueryBuilder.vue';
 import App from '../components/App.vue';
 import QueryBuilderGroup from '@/QueryBuilderGroup.vue';
 import QueryBuilderRule from '@/QueryBuilderRule.vue';
-import { Rule } from '@/types';
 
 describe('Test basic functionality of QueryBuilder.vue', () => {
   const getTemplate = () => ({
@@ -106,7 +105,6 @@ describe('Test basic functionality of QueryBuilder.vue', () => {
       args: [{ operatorIdentifier: 'and', children: [{ identifier: 'num', value: 10 }] }],
     });
 
-
     // Manually update value
     const num = wrapper.find(Number);
     num.setValue('20');
@@ -169,12 +167,7 @@ describe('Test basic functionality of QueryBuilder.vue', () => {
     });
 
     app.findAll(QueryBuilderRule)
-      .filter((qbr: Wrapper<Vue>) => {
-        const vm = qbr.vm as QueryBuilderRule;
-
-        return vm.$props.query.identifier === 'txt'
-          && vm.$props.query.value === 'B';
-      })
+      .filter(({ vm }) => vm.$props.query.identifier === 'txt' && vm.$props.query.value === 'B')
       .at(0)
       .vm
       .$parent
@@ -294,18 +287,16 @@ describe('Test basic functionality of QueryBuilder.vue', () => {
     const app = mount(App, {
       data,
     });
-    const wrapper = app.find(QueryBuilder) as Wrapper<QueryBuilder>;
+    const wrapper = app.find(QueryBuilder);
 
     const qbGroup = wrapper.findAll(QueryBuilderGroup)
-      .filter((qbg: Wrapper<QueryBuilderGroup>) => {
-        const vm = qbg.vm as (QueryBuilderGroup & { selectedOperator: string });
-
-        return vm.selectedOperator === 'and'
+      .filter(
+        ({ vm }) => (vm as (QueryBuilderGroup & { readonly selectedOperator: string })).selectedOperator === 'and'
             && vm.$props.query.children.length === 3
             && vm.$props.query.children[0].identifier === 'txt'
-            && vm.$props.query.children[0].value === 'c';
-      })
-      .at(0) as Wrapper<QueryBuilderGroup>;
+            && vm.$props.query.children[0].value === 'c',
+      )
+      .at(0);
 
     // Assert operators are available
     const options = qbGroup.find('.query-builder-group__group-selection select').findAll('option');
@@ -387,15 +378,11 @@ describe('Test basic functionality of QueryBuilder.vue', () => {
 
     // Edit a rule
     expect(qbGroup.vm.$props.query.children).toHaveLength(3);
-    const rules = qbGroup.findAll(QueryBuilderRule) as WrapperArray<QueryBuilderRule>;
+    const rules = qbGroup.findAll(QueryBuilderRule);
     expect(rules).toHaveLength(4);
-    const rule = rules.filter((qbr: Wrapper<Vue>) => {
-      const query = qbr.vm.$props.query as Rule;
-
-      return query.identifier === 'txt'
-            && query.value === 'd';
-    })
-      .at(0) as Wrapper<QueryBuilderRule>;
+    const rule = rules
+      .filter(({ vm: { $props } }) => $props.query.identifier === 'txt' && $props.query.value === 'd')
+      .at(0);
 
     rule.find('input').setValue('D');
     expect(app.vm.$data.query).toStrictEqual({

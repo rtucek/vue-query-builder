@@ -25,14 +25,17 @@ export default class QueryBuilder extends Vue {
       return this.value;
     }
 
+    if (this.config.operators.length === 0) {
+      return {
+        operatorIdentifier: '',
+        children: [],
+      };
+    }
+
     return {
       operatorIdentifier: this.config.operators[0].identifier,
       children: [],
     };
-  }
-
-  updateQuery(newQuery: RuleSet): void {
-    this.$emit('input', { ...newQuery });
   }
 }
 </script>
@@ -43,7 +46,7 @@ export default class QueryBuilder extends Vue {
     :query="ruleSet"
     :depth="0"
     class="query-builder__root"
-    @query-update="updateQuery"
+    @query-update="$emit('input', $event)"
   >
     <template
       v-for="(_, slotName) in $scopedSlots"

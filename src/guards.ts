@@ -1,9 +1,9 @@
 import {
-  Rule, RuleSet, Operator, QueryBuilderConfig, OperatorDefinition, RuleDefinition,
+  Rule, RuleSet, QueryBuilderConfig, OperatorDefinition, RuleDefinition,
 } from '@/types';
 
 export function isRule(param: any): param is Rule {
-  if (typeof param !== 'object') {
+  if (typeof param !== 'object' || param === null) {
     return false;
   }
 
@@ -17,7 +17,7 @@ export function isRule(param: any): param is Rule {
 }
 
 export function isRuleSet(param: any): param is RuleSet {
-  if (typeof param !== 'object') {
+  if (typeof param !== 'object' || param === null) {
     return false;
   }
 
@@ -29,22 +29,8 @@ export function isRuleSet(param: any): param is RuleSet {
     && param.children.every((child: any) => isRule(child) || isRuleSet(child));
 }
 
-export function isOperator(param: any): param is Operator {
-  if (typeof param !== 'object') {
-    return false;
-  }
-
-  if (typeof param.identifier !== 'string') {
-    return false;
-  }
-
-  const { hasOwnProperty } = Object.prototype;
-
-  return hasOwnProperty.call(param, 'value');
-}
-
 export function isOperatorDefinition(param: any): param is OperatorDefinition {
-  if (typeof param !== 'object') {
+  if (typeof param !== 'object' || param === null) {
     return false;
   }
 
@@ -56,7 +42,7 @@ export function isOperatorDefinition(param: any): param is OperatorDefinition {
 }
 
 export function isRuleDefinition(param: any): param is RuleDefinition {
-  if (typeof param !== 'object') {
+  if (typeof param !== 'object' || param === null) {
     return false;
   }
 
@@ -72,7 +58,7 @@ export function isRuleDefinition(param: any): param is RuleDefinition {
 }
 
 export function isQueryBuilderConfig(param: any): param is QueryBuilderConfig {
-  if (typeof param !== 'object') {
+  if (typeof param !== 'object' || param === null) {
     return false;
   }
 
@@ -81,7 +67,10 @@ export function isQueryBuilderConfig(param: any): param is QueryBuilderConfig {
     && Array.isArray(param.rules)
     && param.rules.every((rule: any) => isRuleDefinition(rule))
     && (
-      (!param.rules)
-      || (Array.isArray(param.colors) && param.colors.every((color: any) => typeof color === 'string'))
+      !param.colors
+      || (
+        Array.isArray(param.colors)
+          && param.colors.every((color: any) => typeof color === 'string')
+      )
     );
 }

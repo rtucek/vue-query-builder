@@ -53,7 +53,7 @@ export default class QueryBuilderRule extends Vue {
       {
         identifier: this.query.identifier,
         value: update,
-      },
+      } as Rule,
     );
   }
 }

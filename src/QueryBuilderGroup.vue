@@ -1,20 +1,26 @@
 <script lang="ts">
 import {
-  Component, Vue, Prop,
+  Component, Vue, Prop, Inject,
 } from 'vue-property-decorator';
+import Draggable, {
+  MoveEvent, Moved, Added, Removed,
+} from 'vuedraggable';
+import { SortableOptions } from 'sortablejs';
 import {
   QueryBuilderConfig, RuleSet, Rule, OperatorDefinition, RuleDefinition,
-  GroupOperatorSlotProps, GroupCtrlSlotProps,
+  GroupOperatorSlotProps, GroupCtrlSlotProps, QueryBuilderGroup as QueryBuilderGroupInterface,
 } from '@/types';
 import { isRuleSet, isRule, isQueryBuilderConfig } from '@/guards';
 import QueryBuilderChild from './QueryBuilderChild.vue';
+import MergeTrap from '@/MergeTrap';
 
 @Component({
   components: {
+    Draggable,
     QueryBuilderChild,
   },
 })
-export default class QueryBuilderGroup extends Vue {
+export default class QueryBuilderGroup extends Vue implements QueryBuilderGroupInterface {
   @Prop({
     required: true,
     validator: param => isQueryBuilderConfig(param),
@@ -23,6 +29,8 @@ export default class QueryBuilderGroup extends Vue {
   @Prop() readonly query!: RuleSet
 
   @Prop() readonly depth!: number
+
+  @Inject() readonly getMergeTrap!: () => MergeTrap
 
   get selectedOperator(): string {
     return this.query.operatorIdentifier;
@@ -38,10 +46,78 @@ export default class QueryBuilderGroup extends Vue {
     );
   }
 
+  trap: ((position: number, newChild: RuleSet | Rule) => void) | null = null;
+
   selectedRule: string = ''
 
   get children(): Array<RuleSet | Rule> {
     return [...this.query.children];
+  }
+
+  updateSort(ev: MoveEvent<RuleSet | Rule>): void {
+    if (ev.moved) {
+      this.moveSortedChild(ev.moved);
+
+      return;
+    }
+
+    if (ev.added) {
+      this.addSortedChild(ev.added);
+
+      return;
+    }
+
+    if (ev.removed) {
+      this.removeSortedChild(ev.removed);
+    }
+  }
+
+  // Item has been moved on the same group.
+  // We can just us the new children for updating the current state.
+  moveSortedChild(move: Moved<RuleSet | Rule>): void {
+    const children = [...this.children];
+
+    children.splice(move.newIndex, 0, children.splice(move.oldIndex, 1)[0]);
+
+    this.$emit(
+      'query-update',
+      {
+        operatorIdentifier: this.selectedOperator,
+        children,
+      } as RuleSet,
+    );
+  }
+
+  addSortedChild(added: Added<RuleSet | Rule>): void {
+    const children = [...this.children];
+
+    children.splice(added.newIndex, 0, added.element);
+
+    this.getMergeTrap().registerSortUpdate({
+      component: this,
+      ev: {
+        operatorIdentifier: this.selectedOperator,
+        children,
+      } as RuleSet,
+      adding: true,
+      affectedIdx: added.newIndex,
+    });
+  }
+
+  removeSortedChild(removed: Removed<RuleSet | Rule>): void {
+    const children = [...this.children];
+
+    children.splice(removed.oldIndex, 1);
+
+    this.getMergeTrap().registerSortUpdate({
+      component: this,
+      ev: {
+        operatorIdentifier: this.selectedOperator,
+        children,
+      } as RuleSet,
+      adding: false,
+      affectedIdx: removed.oldIndex,
+    });
   }
 
   get operators(): OperatorDefinition[] {
@@ -106,6 +182,20 @@ export default class QueryBuilderGroup extends Vue {
     };
   }
 
+  get dragOptions(): SortableOptions {
+    if (this.config.dragging) {
+      return this.config.dragging;
+    }
+
+    return {
+      disabled: true,
+    };
+  }
+
+  get showDragHandle(): boolean {
+    return !(this.dragOptions.disabled || this.depth === 0);
+  }
+
   addRule(): void {
     const children = [...this.children];
 
@@ -163,6 +253,12 @@ export default class QueryBuilderGroup extends Vue {
   }
 
   updateChild(position: number, newChild: RuleSet | Rule): void {
+    if (this.trap) {
+      this.trap(position, newChild);
+
+      return;
+    }
+
     const children = [...this.children];
     children.splice(position, 1, newChild); // Replace child
 
@@ -194,13 +290,27 @@ export default class QueryBuilderGroup extends Vue {
   <div class="query-builder-group">
     <div class="query-builder-group__control">
       <template v-if="$scopedSlots.groupOperator">
-        <slot
-          name="groupOperator"
-          v-bind="groupOperatorSlotProps"
-        />
+        <div class="query-builder-group__group-selection-slot">
+          <img
+            v-if="showDragHandle"
+            class="query-builder__draggable-handle"
+            src="./grip-vertical-solid.svg"
+            alt="Drag element to target"
+          >
+          <slot
+            name="groupOperator"
+            v-bind="groupOperatorSlotProps"
+          />
+        </div>
       </template>
       <template v-else>
         <div class="query-builder-group__group-selection">
+          <img
+            v-if="showDragHandle"
+            class="query-builder__draggable-handle"
+            src="./grip-vertical-solid.svg"
+            alt="Drag element to target"
+          >
           <span class="query-builder-group__group-operator">Operator</span>
           <select v-model="selectedOperator">
             <option disabled value="">Select an operator</option>
@@ -247,11 +357,14 @@ export default class QueryBuilderGroup extends Vue {
         </div>
       </template>
     </div>
-    <div
-      v-if="children.length > 0"
+    <draggable
       class="query-builder-group__group-children"
       :class="childDepthClass"
       :style="getBorderStyle"
+      :value="children"
+      @change="updateSort"
+      tag="div"
+      v-bind="dragOptions"
     >
       <query-builder-child
         v-for="(child, idx) in children"
@@ -273,7 +386,7 @@ export default class QueryBuilderGroup extends Vue {
           />
         </template>
       </query-builder-child>
-    </div>
+    </draggable>
   </div>
 </template>
 
@@ -283,12 +396,28 @@ export default class QueryBuilderGroup extends Vue {
   flex-direction: column;
 }
 
-// .query-builder-group__control {
-// }
-
 .query-builder-group__group-selection {
   padding: 16px;
   background-color: hsl(0, 0, 95%);
+}
+
+.query-builder-group__group-selection,
+.query-builder-group__group-selection-slot {
+  position: relative;
+
+  .query-builder__draggable-handle {
+    display: none;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 4px;
+    width: 8px;
+    cursor: move;
+  }
+
+  &:hover .query-builder__draggable-handle {
+    display: block;
+  }
 }
 
 .query-builder-group__group-operator {
@@ -308,13 +437,12 @@ export default class QueryBuilderGroup extends Vue {
 
 .query-builder-group__spacer {
   width: 0;
-  margin-left: 12px;
-  margin-right: 12px;
+  margin: auto 12px;
   border-left: 1px solid hsl(0, 0%, 75%);
 }
 
 .query-builder-group__group-children {
-  margin: 8px 16px;
+  margin: 8px 0 8px 16px;
   margin-bottom: 0;
   border-left-width: 2px;
   border-left-style: solid;

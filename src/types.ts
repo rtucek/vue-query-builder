@@ -1,4 +1,5 @@
-import { Component } from 'vue';
+import Vue, { Component } from 'vue';
+import { SortableOptions } from 'sortablejs';
 
 export interface Rule {
   identifier: string,
@@ -26,6 +27,7 @@ export interface QueryBuilderConfig {
   operators: OperatorDefinition[],
   rules: RuleDefinition[],
   colors?: string[],
+  dragging?: SortableOptions,
 }
 
 export interface GroupOperatorSlotProps {
@@ -44,4 +46,22 @@ export interface RuleSlotProps {
   ruleComponent: Component | string,
   ruleData: any,
   updateRuleData: (newData: any) => void,
+}
+
+export interface ComponentRegistration {
+  component: QueryBuilderGroup,
+  ev: RuleSet,
+  adding: boolean,
+  affectedIdx: number,
+}
+
+export interface MergeTrap {
+  registerSortUpdate(update: ComponentRegistration): void,
+}
+
+export interface QueryBuilderGroup extends Vue {
+  selectedOperator: string,
+  depth: number,
+  trap: ((position: number, newChild: RuleSet | Rule) => void) | null,
+  children: Array<RuleSet | Rule>,
 }

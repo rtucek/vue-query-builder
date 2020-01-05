@@ -103,7 +103,7 @@ export default class QueryBuilderChild extends Vue {
   </div>
 </template>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .query-builder-child {
   display: flex;
   flex-flow: row;

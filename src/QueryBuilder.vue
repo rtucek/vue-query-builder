@@ -62,6 +62,7 @@ export default class QueryBuilder extends Vue {
     return {
       ...this.config,
       dragging: {
+        handle: '.query-builder__draggable-handle',
         ...this.config.dragging,
         group: `${new Date().getTime() * Math.random()}`,
       },

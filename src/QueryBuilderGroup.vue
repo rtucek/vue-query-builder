@@ -192,6 +192,10 @@ export default class QueryBuilderGroup extends Vue implements QueryBuilderGroupI
     };
   }
 
+  get showDragHandle(): boolean {
+    return !(this.dragOptions.disabled || this.depth === 0);
+  }
+
   addRule(): void {
     const children = [...this.children];
 
@@ -286,13 +290,27 @@ export default class QueryBuilderGroup extends Vue implements QueryBuilderGroupI
   <div class="query-builder-group">
     <div class="query-builder-group__control">
       <template v-if="$scopedSlots.groupOperator">
-        <slot
-          name="groupOperator"
-          v-bind="groupOperatorSlotProps"
-        />
+        <div class="query-builder-group__group-selection-slot">
+          <img
+            v-if="showDragHandle"
+            class="query-builder__draggable-handle"
+            src="./grip-vertical-solid.svg"
+            alt="Drag element to target"
+          >
+          <slot
+            name="groupOperator"
+            v-bind="groupOperatorSlotProps"
+          />
+        </div>
       </template>
       <template v-else>
         <div class="query-builder-group__group-selection">
+          <img
+            v-if="showDragHandle"
+            class="query-builder__draggable-handle"
+            src="./grip-vertical-solid.svg"
+            alt="Drag element to target"
+          >
           <span class="query-builder-group__group-operator">Operator</span>
           <select v-model="selectedOperator">
             <option disabled value="">Select an operator</option>
@@ -378,12 +396,28 @@ export default class QueryBuilderGroup extends Vue implements QueryBuilderGroupI
   flex-direction: column;
 }
 
-// .query-builder-group__control {
-// }
-
 .query-builder-group__group-selection {
   padding: 16px;
   background-color: hsl(0, 0, 95%);
+}
+
+.query-builder-group__group-selection,
+.query-builder-group__group-selection-slot {
+  position: relative;
+
+  .query-builder__draggable-handle {
+    display: none;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 4px;
+    width: 8px;
+    cursor: move;
+  }
+
+  &:hover .query-builder__draggable-handle {
+    display: block;
+  }
 }
 
 .query-builder-group__group-operator {
@@ -403,13 +437,12 @@ export default class QueryBuilderGroup extends Vue implements QueryBuilderGroupI
 
 .query-builder-group__spacer {
   width: 0;
-  margin-left: 12px;
-  margin-right: 12px;
+  margin: auto 12px;
   border-left: 1px solid hsl(0, 0%, 75%);
 }
 
 .query-builder-group__group-children {
-  margin: 8px 16px;
+  margin: 8px 0 8px 16px;
   margin-bottom: 0;
   border-left-width: 2px;
   border-left-style: solid;

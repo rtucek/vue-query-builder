@@ -12,7 +12,7 @@ function getNextGroup(group: QueryBuilderGroup): QueryBuilderGroup {
 
   do {
     vm = vm.$parent;
-  } while (!Object.prototype.hasOwnProperty.call(vm.$props, 'depth'));
+  } while (vm.$options.name !== 'QueryBuilderGroup');
 
   return vm as QueryBuilderGroup;
 }

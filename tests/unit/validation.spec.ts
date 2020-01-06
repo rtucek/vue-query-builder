@@ -1,4 +1,4 @@
-import Input from '../components/Input.vue';
+import Component from '../components/Component.vue';
 import { isQueryBuilderConfig, isRule, isRuleSet } from '@/guards';
 
 describe('Testing component props and guards', () => {
@@ -26,7 +26,7 @@ describe('Testing component props and guards', () => {
           {
             identifier: 'baz',
             name: 'baz',
-            component: Input,
+            component: Component,
           },
         ],
       },

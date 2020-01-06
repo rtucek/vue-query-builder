@@ -2,8 +2,7 @@ import { mount } from '@vue/test-utils';
 import { QueryBuilderConfig, RuleSet } from '@/types';
 import QueryBuilder from '@/QueryBuilder.vue';
 import QueryBuilderGroup from '@/QueryBuilderGroup.vue';
-import Number from '../components/Number.vue';
-import Input from '../components/Input.vue';
+import Component from '../components/Component.vue';
 
 describe('Testing drag\'n\'drop related features', () => {
   const config: QueryBuilderConfig = {
@@ -21,13 +20,13 @@ describe('Testing drag\'n\'drop related features', () => {
       {
         identifier: 'txt',
         name: 'Text Selection',
-        component: Input,
+        component: Component,
         initialValue: 'foo',
       },
       {
         identifier: 'num',
         name: 'Number Selection',
-        component: Number,
+        component: Component,
         initialValue: 10,
       },
     ],

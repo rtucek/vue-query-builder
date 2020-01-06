@@ -19,6 +19,7 @@
   "browser": "dist/query-builder.common.js",
   "jsdelivr": "dist/query-builder.umd.min.js",
   "unpkg": "dist/query-builder.umd.min.js",
+  "types": "./types/index.d.ts",
   "dependencies": {
     "@types/sortablejs": "^1.10.2",
     "core-js": "^3.3.2",

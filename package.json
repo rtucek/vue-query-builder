@@ -1,14 +1,24 @@
 {
   "name": "query-builder",
   "version": "0.1.0",
-  "main": "./dist/query-builder.common.js",
-  "private": true,
+  "license": "MIT",
+  "repository": "https://github.com/rtucek/vue-query-builder",
+  "description": "A query-builder library for Vue.js",
+  "author": {
+    "name": "Rudolf Tucek",
+    "url": "https://github.com/rtucek/"
+  },
+  "private": false,
   "scripts": {
     "serve": "vue-cli-service serve dev/main.ts",
     "build": "vue-cli-service build --target lib src/QueryBuilder.vue",
     "test:unit": "vue-cli-service test:unit",
     "lint": "vue-cli-service lint src/ tests/ dev/"
   },
+  "main": "dist/query-builder.umd.js",
+  "browser": "dist/query-builder.common.js",
+  "jsdelivr": "dist/query-builder.umd.min.js",
+  "unpkg": "dist/query-builder.umd.min.js",
   "dependencies": {
     "@types/sortablejs": "^1.10.2",
     "core-js": "^3.3.2",
@@ -41,7 +51,7 @@
     "pre-commit": "lint-staged"
   },
   "lint-staged": {
-    "*.{js,vue}": [
+    "*.{js,vue,ts}": [
       "vue-cli-service lint",
       "git add"
     ]

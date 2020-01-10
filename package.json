@@ -21,7 +21,8 @@
   "unpkg": "dist/query-builder.umd.min.js",
   "types": "./types/index.d.ts",
   "files": [
-    "/dist/",
+    "/dist/*.js",
+    "/dist/*.js.map",
     "/types/*.d.ts"
   ],
   "dependencies": {
@@ -50,6 +51,7 @@
     "node-sass": "^4.9.0",
     "sass-loader": "^8.0.0",
     "typescript": "^3.4.3",
+    "vue-svg-inline-loader": "^1.4.4",
     "vue-template-compiler": "^2.5.21"
   },
   "gitHooks": {

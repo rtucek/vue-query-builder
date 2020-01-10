@@ -5,8 +5,7 @@ import QueryBuilderGroup from '@/QueryBuilderGroup.vue';
 import {
   RuleSet, Rule, QueryBuilderConfig, QueryBuilderGroup as QueryBuilderGroupInterface,
 } from '@/types';
-import Number from '../components/Number.vue';
-import Input from '../components/Input.vue';
+import Component from '../components/Component.vue';
 
 // Schedule a microtask, so all pending promises can be executed
 const flushPromises = (): Promise<void> => new Promise(res => setTimeout(res, 0));
@@ -86,13 +85,13 @@ describe('Test drag\'n\'drop related actions', () => {
       {
         identifier: 'txt',
         name: 'Text Selection',
-        component: Input,
+        component: Component,
         initialValue: '',
       },
       {
         identifier: 'num',
         name: 'Number Selection',
-        component: Number,
+        component: Component,
         initialValue: 10,
       },
     ],

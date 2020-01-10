@@ -70,6 +70,8 @@ export default class QueryBuilderRule extends Vue {
 <template>
   <div class="query-builder-rule" >
     <img
+      svg-inline
+      svg-sprite
       v-if="showDragHandle"
       class="query-builder__draggable-handle"
       src="./grip-vertical-solid.svg"

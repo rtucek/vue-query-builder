@@ -3,8 +3,7 @@ import { RuleSet, Rule, QueryBuilderConfig } from '@/types';
 import QueryBuilder from '@/QueryBuilder.vue';
 import QueryBuilderGroup from '@/QueryBuilderGroup.vue';
 import QueryBuilderRule from '@/QueryBuilderRule.vue';
-import Number from '../components/Number.vue';
-import Input from '../components/Input.vue';
+import Component from '../components/Component.vue';
 
 describe('Testing slot related features', () => {
   const propsData: { value: RuleSet, config: QueryBuilderConfig } = {
@@ -40,13 +39,13 @@ describe('Testing slot related features', () => {
         {
           identifier: 'txt',
           name: 'Text Selection',
-          component: Input,
+          component: Component,
           initialValue: 'foo',
         },
         {
           identifier: 'num',
           name: 'Number Selection',
-          component: Number,
+          component: Component,
           initialValue: 10,
         },
       ],
@@ -195,7 +194,7 @@ describe('Testing slot related features', () => {
     const ruleComponent = slot.find('.slot-rule');
 
     // Verify rule slot is properly rendered
-    expect(ruleComponent.is(Input)).toBeTruthy();
+    expect(ruleComponent.is(Component)).toBeTruthy();
     expect(ruleComponent.vm.$props.value).toBe('A');
     ruleComponent.vm.$emit('input', 'a');
     expect(rule.emitted()['query-update'][0][0]).toStrictEqual({ identifier: 'txt', value: 'a' });

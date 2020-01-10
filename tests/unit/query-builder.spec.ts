@@ -1,6 +1,5 @@
 import { mount } from '@vue/test-utils';
-import Input from '../components/Input.vue';
-import Number from '../components/Number.vue';
+import Component from '../components/Component.vue';
 import QueryBuilder from '@/QueryBuilder.vue';
 import App from '../components/App.vue';
 import QueryBuilderGroup from '@/QueryBuilderGroup.vue';
@@ -24,13 +23,13 @@ describe('Test basic functionality of QueryBuilder.vue', () => {
         {
           identifier: 'txt',
           name: 'Text Selection',
-          component: Input,
+          component: Component,
           initialValue: '',
         },
         {
           identifier: 'num',
           name: 'Number Selection',
-          component: Number,
+          component: Component,
           initialValue: 10,
         },
       ],
@@ -106,8 +105,8 @@ describe('Test basic functionality of QueryBuilder.vue', () => {
     });
 
     // Manually update value
-    const num = wrapper.find(Number);
-    num.setValue('20');
+    const num = wrapper.find(Component);
+    num.vm.$emit('input', 20);
     expect(wrapper.emittedByOrder()).toHaveLength(2);
     expect(wrapper.emittedByOrder()[1]).toStrictEqual({
       name: 'input',
@@ -149,13 +148,13 @@ describe('Test basic functionality of QueryBuilder.vue', () => {
           {
             identifier: 'txt',
             name: 'Text Selection',
-            component: Input,
+            component: Component,
             initialValue: '',
           },
           {
             identifier: 'num',
             name: 'Number Selection',
-            component: Number,
+            component: Component,
             initialValue: 10,
           },
         ],
@@ -271,13 +270,13 @@ describe('Test basic functionality of QueryBuilder.vue', () => {
           {
             identifier: 'txt',
             name: 'Text Selection',
-            component: Input,
+            component: Component,
             initialValue: '',
           },
           {
             identifier: 'num',
             name: 'Number Selection',
-            component: Number,
+            component: Component,
             initialValue: 10,
           },
         ],
@@ -384,7 +383,7 @@ describe('Test basic functionality of QueryBuilder.vue', () => {
       .filter(({ vm: { $props } }) => $props.query.identifier === 'txt' && $props.query.value === 'd')
       .at(0);
 
-    rule.find('input').setValue('D');
+    rule.find('.dummy-component').vm.$emit('input', 'D');
     expect(app.vm.$data.query).toStrictEqual({
       operatorIdentifier: 'or',
       children: [

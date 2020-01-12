@@ -21,7 +21,8 @@
   "unpkg": "dist/query-builder.umd.min.js",
   "types": "./types/index.d.ts",
   "files": [
-    "/dist/",
+    "/dist/*.js",
+    "/dist/*.js.map",
     "/types/*.d.ts"
   ],
   "dependencies": {

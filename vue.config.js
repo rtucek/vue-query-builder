@@ -3,16 +3,20 @@ module.exports = {
     extract: false,
   },
   chainWebpack: (config) => {
+    const svgRule = config.module.rule('svg');
+    svgRule.uses.clear();
+    svgRule.use('url-loader')
+      .loader('url-loader')
+      .tap(options => ({
+        ...options,
+        limit: 10240,
+      }));
+
     config.module
       .rule('eslint')
       .use('eslint-loader')
       .options({
         fix: true,
       });
-
-    config.module
-      .rule('vue')
-      .use('vue-svg-inline-loader')
-      .loader('vue-svg-inline-loader');
   },
 };

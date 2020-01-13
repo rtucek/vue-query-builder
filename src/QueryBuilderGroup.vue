@@ -292,8 +292,6 @@ export default class QueryBuilderGroup extends Vue implements QueryBuilderGroupI
       <template v-if="$scopedSlots.groupOperator">
         <div class="query-builder-group__group-selection-slot">
           <img
-            svg-inline
-            svg-sprite
             v-if="showDragHandle"
             class="query-builder__draggable-handle"
             src="./grip-vertical-solid.svg"
@@ -308,8 +306,6 @@ export default class QueryBuilderGroup extends Vue implements QueryBuilderGroupI
       <template v-else>
         <div class="query-builder-group__group-selection">
           <img
-            svg-inline
-            svg-sprite
             v-if="showDragHandle"
             class="query-builder__draggable-handle"
             src="./grip-vertical-solid.svg"

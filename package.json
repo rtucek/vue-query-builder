@@ -13,7 +13,9 @@
     "serve": "vue-cli-service serve dev/main.ts",
     "build": "vue-cli-service build --target lib src/QueryBuilder.vue",
     "test:unit": "vue-cli-service test:unit",
-    "lint": "vue-cli-service lint src/ tests/ dev/"
+    "lint": "vue-cli-service lint src/ tests/ dev/",
+    "docs:dev": "vuepress dev docs",
+    "docs:build": "vuepress build docs"
   },
   "main": "dist/query-builder.umd.js",
   "browser": "dist/query-builder.common.js",
@@ -51,7 +53,8 @@
     "node-sass": "^4.9.0",
     "sass-loader": "^8.0.0",
     "typescript": "^3.4.3",
-    "vue-template-compiler": "^2.5.21"
+    "vue-template-compiler": "^2.5.21",
+    "vuepress": "^1.2.0"
   },
   "gitHooks": {
     "pre-commit": "lint-staged"

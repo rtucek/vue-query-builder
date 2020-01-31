@@ -193,11 +193,11 @@ for allowing nested dragging.
 
 ```js
 {
-    dragging: {
-      animation: 300,
-      disabled: false,
-      ghostClass: 'ghost',
-    }
+  dragging: {
+    animation: 300,
+    disabled: false,
+    dragClass: "sortable-drag"
+  }
 }
 ```
 

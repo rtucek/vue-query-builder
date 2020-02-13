@@ -4,9 +4,15 @@ import QueryBuilder from '@/QueryBuilder.vue';
 import App from '../components/App.vue';
 import QueryBuilderGroup from '@/QueryBuilderGroup.vue';
 import QueryBuilderRule from '@/QueryBuilderRule.vue';
+import { QueryBuilderConfig } from '@/types';
+
+interface QueryBuilderTemplate {
+  value: any,
+  config: QueryBuilderConfig,
+}
 
 describe('Test basic functionality of QueryBuilder.vue', () => {
-  const getTemplate = () => ({
+  const getTemplate = (): QueryBuilderTemplate => ({
     value: null,
     config: {
       operators: [
@@ -112,6 +118,41 @@ describe('Test basic functionality of QueryBuilder.vue', () => {
       name: 'input',
       args: [{ operatorIdentifier: 'and', children: [{ identifier: 'num', value: 20 }] }],
     });
+  });
+
+  it('makes use of an initial value\'s factory function', () => {
+    const initialValue = jest.fn(() => 'Hello World');
+
+    const data = getTemplate();
+    data.config.rules = [
+      {
+        identifier: 'txt',
+        name: 'Text Selection',
+        component: Component,
+        initialValue,
+      },
+    ];
+
+    const app = mount(App, {
+      data() {
+        return data;
+      },
+    });
+    const wrapper = app.find(QueryBuilder);
+
+    // Assert rules are available
+    const rules = wrapper.find('.query-builder-group__group-control select').findAll('option');
+    const addRuleBtn = wrapper.find('.query-builder-group__rule-adding-button');
+
+    // Assert update has propagated with default value
+    rules.at(1).setSelected();
+    addRuleBtn.trigger('click');
+    expect(wrapper.emittedByOrder()).toHaveLength(1);
+    expect(wrapper.emittedByOrder()[0]).toStrictEqual({
+      name: 'input',
+      args: [{ operatorIdentifier: 'and', children: [{ identifier: 'txt', value: 'Hello World' }] }],
+    });
+    expect(initialValue).toHaveBeenCalled();
   });
 
   it('deletes a rule', () => {

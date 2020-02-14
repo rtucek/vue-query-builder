@@ -208,20 +208,19 @@ export default class QueryBuilderGroup extends Vue implements QueryBuilderGroupI
       throw new Error(`"initialValue" of "${selectedRule.identifier}" must not be an object - use a factory function!`);
     }
 
-    let initialValue: any = null; // null as sensitive default...
-    if (typeof selectedRule.initialValue === 'function') {
-      // Use factory function
-      initialValue = selectedRule.initialValue();
-    }
-
+    let value: any = null; // null as sensitive default...
     if (typeof selectedRule.initialValue !== 'undefined') {
-      // If it exists use the primitive value
-      ({ initialValue } = selectedRule);
+      // If a valid has been passed along, use it
+      value = selectedRule.initialValue;
+    }
+    if (typeof value === 'function') {
+      // initialValue is a factory function
+      value = value();
     }
 
     children.push({
       identifier: selectedRule.identifier,
-      value: initialValue,
+      value,
     } as Rule);
 
     this.$emit(

@@ -15,10 +15,10 @@
     "test:unit": "vue-cli-service test:unit",
     "lint": "vue-cli-service lint src/ tests/ dev/"
   },
-  "main": "dist/query-builder.umd.js",
-  "browser": "dist/query-builder.common.js",
-  "jsdelivr": "dist/query-builder.umd.min.js",
-  "unpkg": "dist/query-builder.umd.min.js",
+  "main": "dist/query-builder-vue.umd.js",
+  "browser": "dist/query-builder-vue.common.js",
+  "jsdelivr": "dist/query-builder-vue.umd.min.js",
+  "unpkg": "dist/query-builder-vue.umd.min.js",
   "types": "./types/index.d.ts",
   "files": [
     "/dist/*.js",

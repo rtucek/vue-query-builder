@@ -50,10 +50,17 @@ Rules are individual conditions within a group and must be defined as components
 Every must have a unique identifier, a display name, the underlying component and optionally an
 individual value.
 
+You may want to wrap an external library with a dedicated component for one of the following
+reasons:
+ - The library doesn't support the v-model API.
+ - The underlying component requires addition configuration or you may want to provide additional
+   configuration with props.
+ - You want to apply custom CSS.
+
 The `initialValue` may provide any primitive value (string, number or null), however any object or
 array must be constructed by a factory function.
 
-There are several options for assigning composer with rules:
+There are several options for assigning a component to a rule:
  - JavaScript modules
  - Pre-defined Vue Components
  - Inline the component's definition directly (requires compiler-included build for templates or use

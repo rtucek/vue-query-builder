@@ -1,33 +1,32 @@
-<script lang="ts">
-import { Component, Vue, Prop } from 'vue-property-decorator';
-import { RuleSlotProps } from '@/types';
-
-@Component
-export default class RuleSlot extends Vue {
-  @Prop({ required: true }) readonly ruleCtrl!: RuleSlotProps
-
-  get ruleData(): any {
-    return this.ruleCtrl.ruleData;
-  }
-
-  set ruleData(newData: any) {
-    this.ruleCtrl.updateRuleData(newData);
-  }
-}
+<script>
+export default {
+  props: [
+    'rules',
+    'ruleCtrl',
+  ],
+  computed: {
+    ruleName() {
+      return this.rules
+        .find(r => r.component === this.ruleCtrl.ruleComponent)
+        .name;
+    },
+  },
+};
 </script>
 
 <template>
-  <div>
-    <span class="slot-text">SLOT #rule</span>
-    <component
-      :is="ruleCtrl.ruleComponent"
-      v-model="ruleData"
-    />
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-xs-12 col-sm-3 col-md-1">
+        {{ ruleName }}
+      </div>
+      <div class="col-xs-12 col-sm-9 col-md-11">
+        <component
+          :is="ruleCtrl.ruleComponent"
+          :value="ruleCtrl.ruleData"
+          @input="ruleCtrl.updateRuleData"
+        />
+      </div>
+    </div>
   </div>
 </template>
-
-<style lang="scss" scoped>
-.slot-text {
-  margin-right: 8px;
-}
-</style>

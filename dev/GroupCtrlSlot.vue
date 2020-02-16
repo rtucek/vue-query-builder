@@ -1,63 +1,112 @@
-<script lang="ts">
-import { Vue, Component, Prop } from 'vue-property-decorator';
-import { GroupCtrlSlotProps } from '@/types';
+<script>
+export default {
+  props: [
+    'groupCtrl',
+  ],
+  data() {
+    return {
+      selectedRule: '',
+      expanded: false,
+    };
+  },
+  computed: {
+    ruleName() {
+      if (this.selectedRule === '') {
+        return 'Select a Rule';
+      }
 
-@Component
-export default class GroupCtrlSlot extends Vue {
-  @Prop({ required: true }) readonly groupCtrl!: GroupCtrlSlotProps
+      return this.groupCtrl.rules.find(r => r.identifier === this.selectedRule).name;
+    },
+  },
+  methods: {
+    setRule(rule) {
+      this.expanded = false;
+      this.selectedRule = rule;
+    },
+    addRule(rule) {
+      if (!this.selectedRule) {
+        return;
+      }
 
-  selectedRule: string = ''
-}
+      this.groupCtrl.addRule(this.selectedRule);
+      this.selectedRule = '';
+    },
+  },
+};
 </script>
 
 <template>
-  <div class="query-builder-group-slot__group-control">
-    SLOT #groupControl
-    <select
-      v-model="selectedRule"
-      class="query-builder-group-slot__rule-selection"
-    >
-      <option disabled value="">Select a rule</option>
-      <option
-        v-for="rule in groupCtrl.rules"
-        :key="rule.identifier"
-        :value="rule.identifier"
-        v-text="rule.name"
-      />
-    </select>
-    <button
-      :disabled="selectedRule === ''"
-      @click="groupCtrl.addRule(selectedRule)"
-      class="query-builder-group-slot__rule-adding-button"
-    >
-      Add Rule
-    </button>
-    <div class="query-builder-group-slot__spacer"/>
-    <button
-      @click="groupCtrl.newGroup"
-      class="query-builder-group-slot__group-adding-button"
-    >
-      Add Group
-    </button>
+  <div class="container-fluid group-ctrl-slot">
+    <div class="row">
+      <div class="col-auto">
+        <div
+          class="btn-group"
+          role="group"
+          aria-label="Button group with nested dropdown"
+        >
+          <div
+            class="btn-group"
+            :class="{ show: expanded }"
+            role="group"
+          >
+            <button
+              id="btnGroupDrop1"
+              type="button"
+              class="btn btn-primary dropdown-toggle"
+              data-toggle="dropdown"
+              aria-haspopup="true"
+              :aria-expanded="String(expanded)"
+              @click="expanded = !expanded"
+            >
+              {{ ruleName }}
+            </button>
+            <div
+              class="dropdown-menu"
+              :class="{ show: expanded }"
+              aria-labelledby="btnGroupDrop1"
+            >
+              <a
+                @click="setRule('')"
+                class="dropdown-item"
+                href="#"
+              >
+                Select a Rule
+              </a>
+              <a
+                v-for="rule in groupCtrl.rules"
+                :key="rule.identifier"
+                @click="setRule(rule.identifier)"
+                class="dropdown-item"
+                href="#"
+              >
+                {{ rule.name }}
+              </a>
+            </div>
+          </div>
+          <button
+            type="button"
+            class="btn btn-primary"
+            :disabled="selectedRule === ''"
+            @click="addRule"
+          >
+            Add Rule
+          </button>
+        </div>
+      </div>
+      <div class="col-auto">
+        <button
+          class="btn btn-primary"
+          @click="groupCtrl.newGroup"
+          v-text="'Add Group'"
+        />
+      </div>
+    </div>
   </div>
 </template>
 
-<style lang="scss" scoped>
-.query-builder-group-slot__group-control {
-  padding: 16px;
-  display: flex;
-  flex-direction: row;
-}
-
-.query-builder-group-slot__rule-selection,
-.query-builder-group-slot__rule-adding-button {
-  margin-left: 8px;
-}
-
-.query-builder-group-slot__spacer {
-  width: 0;
-  margin-left: 12px;
-  margin-right: 12px;
-  border-left: 1px solid hsl(0, 0%, 75%);
+<style scoped>
+.group-ctrl-slot {
+  margin-top: 16px;
+  margin-bottom: 16px;
 }
 </style>

@@ -42,3 +42,16 @@ Query Builder with [Bootstrap 4](https://getbootstrap.com/) theme.
   allow="geolocation; microphone; camera; midi; vr; accelerometer; gyroscope; payment; ambient-light-sensor; encrypted-media; usb"
   sandbox="allow-modals allow-forms allow-popups allow-scripts allow-same-origin"
 ></iframe>
+
+
+### Bulma
+
+Query Builder with [Bulma](https://bulma.io/) theme.
+
+<iframe
+  src="https://codesandbox.io/embed/demo-bulma-9m5r4?fontsize=14&hidenavigation=1&module=%2Fsrc%2FApp.vue&theme=dark"
+  style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+  title="Demo: Bulma"
+  allow="geolocation; microphone; camera; midi; vr; accelerometer; gyroscope; payment; ambient-light-sensor; encrypted-media; usb"
+  sandbox="allow-modals allow-forms allow-popups allow-scripts allow-same-origin"
+></iframe>

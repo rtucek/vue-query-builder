@@ -28,12 +28,19 @@
     "/types/*.d.ts"
   ],
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.12.1",
     "@types/sortablejs": "^1.10.2",
+    "bulma": "^0.8.0",
     "core-js": "^3.3.2",
+    "flatpickr": "^4.6.3",
+    "query-builder-vue": "^0.1.3",
     "sortablejs": "^1.10.2",
     "vue": "^2.6.10",
     "vue-class-component": "^7.0.2",
+    "vue-flatpickr-component": "^8.1.5",
     "vue-property-decorator": "^8.1.0",
+    "vue-range-component": "^1.0.3",
+    "vue-select": "^3.4.0",
     "vuedraggable": "^2.23.2"
   },
   "devDependencies": {

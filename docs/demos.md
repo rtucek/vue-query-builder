@@ -22,3 +22,23 @@ In the sample below, we're demonstrating usage of 3 different libraries: range s
   allow="geolocation; microphone; camera; midi; vr; accelerometer; gyroscope; payment; ambient-light-sensor; encrypted-media; usb"
   sandbox="allow-modals allow-forms allow-popups allow-scripts allow-same-origin"
 ></iframe>
+
+
+## Theming
+
+Many work has been put into the ability of overriding the styling and markup for making the Query
+Builder agnostic to various CSS frameworks and responsive. Of course, you'll have to ensure by
+yourself that Query Builder rules are responsive.
+
+
+### Bootstrap
+
+Query Builder with [Bootstrap 4](https://getbootstrap.com/) theme.
+
+<iframe
+  src="https://codesandbox.io/embed/demo-bootstrap-4-e37eq?fontsize=14&hidenavigation=1&module=%2Fsrc%2FApp.vue&theme=dark"
+  style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+  title="demo bootstrap 4"
+  allow="geolocation; microphone; camera; midi; vr; accelerometer; gyroscope; payment; ambient-light-sensor; encrypted-media; usb"
+  sandbox="allow-modals allow-forms allow-popups allow-scripts allow-same-origin"
+></iframe>

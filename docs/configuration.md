@@ -38,6 +38,7 @@ Every operator is defined by an unique identifier and a visual text.
       identifier: 'AND_NOT',
     },
     // ...
+  ],
 }
 ```
 

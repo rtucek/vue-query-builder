@@ -1,3 +1,7 @@
+[![Build Status](https://travis-ci.org/rtucek/vue-query-builder.svg?branch=master)](https://travis-ci.org/rtucek/vue-query-builder)
+![npm](https://img.shields.io/npm/v/query-builder-vue)
+![NPM](https://img.shields.io/npm/l/query-builder-vue)
+
 # Vue Query Builder
 
 A query-builder for Vue.

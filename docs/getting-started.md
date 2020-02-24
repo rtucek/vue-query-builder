@@ -22,7 +22,7 @@ to import Vue too!
 
 
 ```html
-<script src="https://unpkg.com/browse/query-builder-vue@0.1.0/dist/query-builder.umd.min.js"></script>
+<script src="https://unpkg.com/query-builder-vue@latest/dist/query-builder-vue.umd.min.js"></script>
 ```
 
 

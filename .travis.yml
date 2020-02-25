@@ -8,5 +8,6 @@ cache:
   yarn: true
 
 script:
-  - yarn test:unit
-  - yarn build
+  - yarn run test:unit
+  - yarn run build
+  - yarn run docs:build

@@ -10,6 +10,9 @@
   },
   "private": false,
   "scripts": {
+    "preversion-test": "echo \"Running tests for version $npm_package_version...\" && yarn run test:unit",
+    "preversion": "yarn run preversion-test",
+    "postversion": "git push --tags && yarn publish . --tag $npm_package_version && git push && echo \"Successfully released version $npm_package_version!\"",
     "serve": "vue-cli-service serve dev/main.ts",
     "build": "vue-cli-service build --target lib src/QueryBuilder.vue",
     "test:unit": "vue-cli-service test:unit",

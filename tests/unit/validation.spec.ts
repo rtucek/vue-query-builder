@@ -1,5 +1,5 @@
-import Component from '../components/Component.vue';
 import { isQueryBuilderConfig, isRule, isRuleSet } from '@/guards';
+import Component from '../components/Component.vue';
 
 describe('Testing component props and guards', () => {
   it('checks isQueryBuilderConfig guard', () => {

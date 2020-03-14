@@ -1,10 +1,10 @@
 import { mount } from '@vue/test-utils';
-import Component from '../components/Component.vue';
 import QueryBuilder from '@/QueryBuilder.vue';
-import App from '../components/App.vue';
 import QueryBuilderGroup from '@/QueryBuilderGroup.vue';
 import QueryBuilderRule from '@/QueryBuilderRule.vue';
 import { QueryBuilderConfig } from '@/types';
+import App from '../components/App.vue';
+import Component from '../components/Component.vue';
 
 interface QueryBuilderTemplate {
   value: any,

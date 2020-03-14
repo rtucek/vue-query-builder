@@ -4,8 +4,8 @@ import {
 } from 'vue-property-decorator';
 import { isQueryBuilderConfig, isRuleSet } from '@/guards';
 import { RuleSet, QueryBuilderConfig } from '@/types';
-import QueryBuilderGroup from './QueryBuilderGroup.vue';
 import MergeTrap from '@/MergeTrap';
+import QueryBuilderGroup from './QueryBuilderGroup.vue';
 
 @Component({
   components: {

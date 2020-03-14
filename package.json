@@ -8,6 +8,14 @@
     "name": "Rudolf Tucek",
     "url": "https://github.com/rtucek/"
   },
+  "keywords": [
+    "drag'n'drop",
+    "Query Builder",
+    "themeable",
+    "TypeScript",
+    "Vue",
+    "Vuex support"
+  ],
   "private": false,
   "scripts": {
     "preversion-test": "echo \"Running tests for version $npm_package_version...\" && yarn run test:unit",

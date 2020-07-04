@@ -882,7 +882,13 @@ if (!set || !clear) {
     defer = bind(port.postMessage, port, 1);
   // Browsers with postMessage, skip WebWorkers
   // IE8 has postMessage, but it's sync & typeof its postMessage is 'object'
-  } else if (global.addEventListener && typeof postMessage == 'function' && !global.importScripts && !fails(post)) {
+  } else if (
+    global.addEventListener &&
+    typeof postMessage == 'function' &&
+    !global.importScripts &&
+    !fails(post) &&
+    location.protocol !== 'file:'
+  ) {
     defer = post;
     global.addEventListener('message', listener, false);
   // IE8-
@@ -4967,7 +4973,7 @@ var store = __webpack_require__("c6cd");
 (module.exports = function (key, value) {
   return store[key] || (store[key] = value !== undefined ? value : {});
 })('versions', []).push({
-  version: '3.6.4',
+  version: '3.6.5',
   mode: IS_PURE ? 'pure' : 'global',
   copyright: '© 2020 Denis Pushkarev (zloirock.ru)'
 });
@@ -5587,7 +5593,14 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
   } else {}
 }(typeof self !== 'undefined' ? self : this, function () {
   function getCurrentScript () {
-    if (document.currentScript) {
+    var descriptor = Object.getOwnPropertyDescriptor(document, 'currentScript')
+    // for chrome
+    if (!descriptor && 'currentScript' in document && document.currentScript) {
+      return document.currentScript
+    }
+
+    // for other browsers with native support for currentScript
+    if (descriptor && descriptor.get !== getCurrentScript && document.currentScript) {
       return document.currentScript
     }
   
@@ -11623,7 +11636,7 @@ if (typeof window !== 'undefined') {
 // Indicate to webpack that this file can be concatenated
 /* harmony default export */ var setPublicPath = (null);
 
-// CONCATENATED MODULE: ./node_modules/cache-loader/dist/cjs.js?{"cacheDirectory":"node_modules/.cache/vue-loader","cacheIdentifier":"fd9de61a-vue-loader-template"}!./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/cache-loader/dist/cjs.js??ref--0-0!./node_modules/vue-loader/lib??vue-loader-options!./src/QueryBuilder.vue?vue&type=template&id=30ad74a0&scoped=true&
+// CONCATENATED MODULE: ./node_modules/cache-loader/dist/cjs.js?{"cacheDirectory":"node_modules/.cache/vue-loader","cacheIdentifier":"fb996f9e-vue-loader-template"}!./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/cache-loader/dist/cjs.js??ref--0-0!./node_modules/vue-loader/lib??vue-loader-options!./src/QueryBuilder.vue?vue&type=template&id=30ad74a0&scoped=true&
 var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('query-builder-group',{staticClass:"query-builder__root",attrs:{"config":_vm.queryBuiderConfig,"query":_vm.ruleSet,"depth":0},on:{"query-update":_vm.updateQuery},scopedSlots:_vm._u([_vm._l((_vm.$scopedSlots),function(_,slotName){return {key:slotName,fn:function(props){return [_vm._t(slotName,null,null,props)]}}})],null,true)})}
 var staticRenderFns = []
 
@@ -11859,11 +11872,12 @@ function _possibleConstructorReturn(self, call) {
 
 
 function _createSuper(Derived) {
-  return function () {
+  var hasNativeReflectConstruct = _isNativeReflectConstruct();
+  return function _createSuperInternal() {
     var Super = _getPrototypeOf(Derived),
         result;
 
-    if (_isNativeReflectConstruct()) {
+    if (hasNativeReflectConstruct) {
       var NewTarget = _getPrototypeOf(this).constructor;
       result = Reflect.construct(Super, arguments, NewTarget);
     } else {
@@ -11875,18 +11889,18 @@ function _createSuper(Derived) {
 }
 // CONCATENATED MODULE: ./node_modules/tslib/tslib.es6.js
 /*! *****************************************************************************
-Copyright (c) Microsoft Corporation. All rights reserved.
-Licensed under the Apache License, Version 2.0 (the "License"); you may not use
-this file except in compliance with the License. You may obtain a copy of the
-License at http://www.apache.org/licenses/LICENSE-2.0
+Copyright (c) Microsoft Corporation.
 
-THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
-WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
-MERCHANTABLITY OR NON-INFRINGEMENT.
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted.
 
-See the Apache Version 2.0 License for specific language governing permissions
-and limitations under the License.
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+PERFORMANCE OF THIS SOFTWARE.
 ***************************************************************************** */
 /* global Reflect, Promise */
 
@@ -11979,8 +11993,13 @@ function __generator(thisArg, body) {
     }
 }
 
+function __createBinding(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}
+
 function __exportStar(m, exports) {
-    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+    for (var p in m) if (p !== "default" && !exports.hasOwnProperty(p)) exports[p] = m[p];
 }
 
 function __values(o) {
@@ -12411,7 +12430,7 @@ vue_class_component_esm_Component.registerHooks = function registerHooks(keys) {
 
 
 // CONCATENATED MODULE: ./node_modules/vue-property-decorator/lib/vue-property-decorator.js
-/** vue-property-decorator verson 8.4.1 MIT LICENSE copyright 2019 kaorun343 */
+/** vue-property-decorator verson 8.5.1 MIT LICENSE copyright 2020 kaorun343 */
 /// <reference types='reflect-metadata'/>
 
 
@@ -12469,12 +12488,10 @@ function produceProvide(original) {
         }
         var _loop_1 = function (i) {
             rv[provide.managedReactive[i]] = this_1[i]; // Duplicates the behavior of `@Provide`
-            if (!rv[reactiveInjectKey].hasOwnProperty(provide.managedReactive[i])) {
-                Object.defineProperty(rv[reactiveInjectKey], provide.managedReactive[i], {
-                    enumerable: true,
-                    get: function () { return _this[i]; },
-                });
-            }
+            Object.defineProperty(rv[reactiveInjectKey], provide.managedReactive[i], {
+                enumerable: true,
+                get: function () { return _this[i]; },
+            });
         };
         var this_1 = this;
         for (var i in provide.managedReactive) {
@@ -12649,18 +12666,24 @@ function Emit(event) {
                         _this.$emit(emitName, args[0]);
                     }
                     else {
-                        _this.$emit(emitName, args);
+                        _this.$emit.apply(_this, [emitName].concat(args));
                     }
                 }
                 else {
-                    _this.$emit(emitName, returnValue);
+                    if (args.length === 0) {
+                        _this.$emit(emitName, returnValue);
+                    }
+                    else if (args.length === 1) {
+                        _this.$emit(emitName, returnValue, args[0]);
+                    }
+                    else {
+                        _this.$emit.apply(_this, [emitName, returnValue].concat(args));
+                    }
                 }
             };
             var returnValue = original.apply(this, args);
             if (isPromise(returnValue)) {
-                returnValue.then(function (returnValue) {
-                    emit(returnValue);
-                });
+                returnValue.then(emit);
             }
             else {
                 emit(returnValue);
@@ -12821,7 +12844,7 @@ function _unsupportedIterableToArray(o, minLen) {
   if (typeof o === "string") return _arrayLikeToArray(o, minLen);
   var n = Object.prototype.toString.call(o).slice(8, -1);
   if (n === "Object" && o.constructor) n = o.constructor.name;
-  if (n === "Map" || n === "Set") return Array.from(n);
+  if (n === "Map" || n === "Set") return Array.from(o);
   if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
 }
 // CONCATENATED MODULE: ./node_modules/@babel/runtime/helpers/esm/nonIterableSpread.js
@@ -12998,7 +13021,7 @@ var MergeTrap_MergeTrap = /*#__PURE__*/function () {
 }();
 
 
-// CONCATENATED MODULE: ./node_modules/cache-loader/dist/cjs.js?{"cacheDirectory":"node_modules/.cache/vue-loader","cacheIdentifier":"fd9de61a-vue-loader-template"}!./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/cache-loader/dist/cjs.js??ref--0-0!./node_modules/vue-loader/lib??vue-loader-options!./src/QueryBuilderGroup.vue?vue&type=template&id=446eba06&scoped=true&
+// CONCATENATED MODULE: ./node_modules/cache-loader/dist/cjs.js?{"cacheDirectory":"node_modules/.cache/vue-loader","cacheIdentifier":"fb996f9e-vue-loader-template"}!./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/cache-loader/dist/cjs.js??ref--0-0!./node_modules/vue-loader/lib??vue-loader-options!./src/QueryBuilderGroup.vue?vue&type=template&id=446eba06&scoped=true&
 var QueryBuilderGroupvue_type_template_id_446eba06_scoped_true_render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"query-builder-group"},[_c('div',{staticClass:"query-builder-group__control"},[(_vm.$scopedSlots.groupOperator)?[_c('div',{staticClass:"query-builder-group__group-selection-slot"},[(_vm.showDragHandle)?_c('img',{staticClass:"query-builder__draggable-handle",attrs:{"src":__webpack_require__("8d2e"),"alt":"Drag element to target"}}):_vm._e(),_vm._t("groupOperator",null,null,_vm.groupOperatorSlotProps)],2)]:[_c('div',{staticClass:"query-builder-group__group-selection"},[(_vm.showDragHandle)?_c('img',{staticClass:"query-builder__draggable-handle",attrs:{"src":__webpack_require__("8d2e"),"alt":"Drag element to target"}}):_vm._e(),_c('span',{staticClass:"query-builder-group__group-operator"},[_vm._v("Operator")]),_c('select',{directives:[{name:"model",rawName:"v-model",value:(_vm.selectedOperator),expression:"selectedOperator"}],on:{"change":function($event){var $$selectedVal = Array.prototype.filter.call($event.target.options,function(o){return o.selected}).map(function(o){var val = "_value" in o ? o._value : o.value;return val}); _vm.selectedOperator=$event.target.multiple ? $$selectedVal : $$selectedVal[0]}}},[_c('option',{attrs:{"disabled":"","value":""}},[_vm._v("Select an operator")]),_vm._l((_vm.operators),function(operator){return _c('option',{key:operator.identifier,domProps:{"value":operator.identifier,"textContent":_vm._s(operator.name)}})})],2)])],(_vm.$scopedSlots.groupControl)?[_vm._t("groupControl",null,null,_vm.groupControlSlotProps)]:[_c('div',{staticClass:"query-builder-group__group-control"},[_c('select',{directives:[{name:"model",rawName:"v-model",value:(_vm.selectedRule),expression:"selectedRule"}],on:{"change":function($event){var $$selectedVal = Array.prototype.filter.call($event.target.options,function(o){return o.selected}).map(function(o){var val = "_value" in o ? o._value : o.value;return val}); _vm.selectedRule=$event.target.multiple ? $$selectedVal : $$selectedVal[0]}}},[_c('option',{attrs:{"disabled":"","value":""}},[_vm._v("Select a rule")]),_vm._l((_vm.rules),function(rule){return _c('option',{key:rule.identifier,domProps:{"value":rule.identifier,"textContent":_vm._s(rule.name)}})})],2),_c('button',{staticClass:"query-builder-group__rule-adding-button",attrs:{"disabled":_vm.selectedRule === ''},on:{"click":_vm.addRule}},[_vm._v(" Add Rule ")]),_c('div',{staticClass:"query-builder-group__spacer"}),_c('button',{staticClass:"query-builder-group__group-adding-button",on:{"click":_vm.newGroup}},[_vm._v(" Add Group ")])])]],2),_c('draggable',_vm._b({staticClass:"query-builder-group__group-children",class:_vm.childDepthClass,style:(_vm.getBorderStyle),attrs:{"value":_vm.children,"tag":"div"},on:{"change":_vm.updateSort}},'draggable',_vm.dragOptions,false),_vm._l((_vm.children),function(child,idx){return _c('query-builder-child',{key:idx,staticClass:"query-builder-group__child",attrs:{"config":_vm.config,"query":child,"depth":_vm.childDepth},on:{"query-update":function($event){return _vm.updateChild(idx, $event)},"delete-child":function($event){return _vm.deleteChild(idx)}},scopedSlots:_vm._u([_vm._l((_vm.$scopedSlots),function(_,slotName){return {key:slotName,fn:function(props){return [_vm._t(slotName,null,null,props)]}}})],null,true)})}),1)],1)}
 var QueryBuilderGroupvue_type_template_id_446eba06_scoped_true_staticRenderFns = []
 
@@ -13012,14 +13035,14 @@ var es_array_find = __webpack_require__("7db0");
 var vuedraggable_common = __webpack_require__("310e");
 var vuedraggable_common_default = /*#__PURE__*/__webpack_require__.n(vuedraggable_common);
 
-// CONCATENATED MODULE: ./node_modules/cache-loader/dist/cjs.js?{"cacheDirectory":"node_modules/.cache/vue-loader","cacheIdentifier":"fd9de61a-vue-loader-template"}!./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/cache-loader/dist/cjs.js??ref--0-0!./node_modules/vue-loader/lib??vue-loader-options!./src/QueryBuilderChild.vue?vue&type=template&id=0985327d&scoped=true&
+// CONCATENATED MODULE: ./node_modules/cache-loader/dist/cjs.js?{"cacheDirectory":"node_modules/.cache/vue-loader","cacheIdentifier":"fb996f9e-vue-loader-template"}!./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/cache-loader/dist/cjs.js??ref--0-0!./node_modules/vue-loader/lib??vue-loader-options!./src/QueryBuilderChild.vue?vue&type=template&id=0985327d&scoped=true&
 var QueryBuilderChildvue_type_template_id_0985327d_scoped_true_render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"query-builder-child"},[_c(_vm.component,{tag:"component",staticClass:"query-builder-child__component",attrs:{"config":_vm.config,"query":_vm.query,"depth":_vm.depth},on:{"query-update":function($event){return _vm.$emit('query-update', $event)}},scopedSlots:_vm._u([_vm._l((_vm.$scopedSlots),function(_,slotName){return {key:slotName,fn:function(props){return [_vm._t(slotName,null,null,props)]}}})],null,true)}),_c('button',{staticClass:"query-builder-child__delete-child",attrs:{"aria-label":"Close"},on:{"click":function($event){return _vm.$emit('delete-child')}}},[_c('span',{attrs:{"aria-hidden":"true"}},[_vm._v("×")])])],1)}
 var QueryBuilderChildvue_type_template_id_0985327d_scoped_true_staticRenderFns = []
 
 
 // CONCATENATED MODULE: ./src/QueryBuilderChild.vue?vue&type=template&id=0985327d&scoped=true&
 
-// CONCATENATED MODULE: ./node_modules/cache-loader/dist/cjs.js?{"cacheDirectory":"node_modules/.cache/vue-loader","cacheIdentifier":"fd9de61a-vue-loader-template"}!./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/cache-loader/dist/cjs.js??ref--0-0!./node_modules/vue-loader/lib??vue-loader-options!./src/QueryBuilderRule.vue?vue&type=template&id=2d9be62f&scoped=true&
+// CONCATENATED MODULE: ./node_modules/cache-loader/dist/cjs.js?{"cacheDirectory":"node_modules/.cache/vue-loader","cacheIdentifier":"fb996f9e-vue-loader-template"}!./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/cache-loader/dist/cjs.js??ref--0-0!./node_modules/vue-loader/lib??vue-loader-options!./src/QueryBuilderRule.vue?vue&type=template&id=2d9be62f&scoped=true&
 var QueryBuilderRulevue_type_template_id_2d9be62f_scoped_true_render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"query-builder-rule"},[(_vm.showDragHandle)?_c('img',{staticClass:"query-builder__draggable-handle",attrs:{"src":__webpack_require__("8d2e"),"alt":"Drag element to target"}}):_vm._e(),(_vm.$scopedSlots.rule)?[_vm._t("rule",null,null,_vm.ruleSlotProps)]:[_c('span',{staticClass:"query-builder-rule__name",domProps:{"textContent":_vm._s(_vm.definition.name)}}),_c('div',{staticClass:"query-builder-rule__component-container"},[_c(_vm.component,{tag:"component",model:{value:(_vm.ruleData),callback:function ($$v) {_vm.ruleData=$$v},expression:"ruleData"}})],1)]],2)}
 var QueryBuilderRulevue_type_template_id_2d9be62f_scoped_true_staticRenderFns = []
 
@@ -13191,7 +13214,12 @@ function normalizeComponent (
     options._ssrRegister = hook
   } else if (injectStyles) {
     hook = shadowMode
-      ? function () { injectStyles.call(this, this.$root.$options.shadowRoot) }
+      ? function () {
+        injectStyles.call(
+          this,
+          (options.functional ? this.parent : this).$root.$options.shadowRoot
+        )
+      }
       : injectStyles
   }
 
@@ -13553,7 +13581,7 @@ var QueryBuilderGroupvue_type_script_lang_ts_QueryBuilderGroup = /*#__PURE__*/fu
       return this.query.operatorIdentifier;
     },
     set: function set(operatorIdentifier) {
-      this.$emit('query-update', _objectSpread2({}, this.query, {
+      this.$emit('query-update', _objectSpread2(_objectSpread2({}, this.query), {}, {
         operatorIdentifier: operatorIdentifier
       }));
     }
@@ -13610,7 +13638,7 @@ var QueryBuilderGroupvue_type_script_lang_ts_QueryBuilderGroup = /*#__PURE__*/fu
         currentOperator: this.selectedOperator,
         operators: this.operators,
         updateCurrentOperator: function updateCurrentOperator(newOperator) {
-          _this3.$emit('query-update', _objectSpread2({}, _this3.query, {
+          _this3.$emit('query-update', _objectSpread2(_objectSpread2({}, _this3.query), {}, {
             operatorIdentifier: newOperator
           }));
         }
@@ -13782,10 +13810,10 @@ var QueryBuildervue_type_script_lang_ts_QueryBuilder = /*#__PURE__*/function (_V
       // across 2 different instances and this is currently not supported.
 
 
-      return _objectSpread2({}, this.config, {
-        dragging: _objectSpread2({
+      return _objectSpread2(_objectSpread2({}, this.config), {}, {
+        dragging: _objectSpread2(_objectSpread2({
           handle: '.query-builder__draggable-handle'
-        }, this.config.dragging, {
+        }, this.config.dragging), {}, {
           group: "".concat(new Date().getTime() * Math.random())
         })
       });

@@ -20,7 +20,7 @@
   "scripts": {
     "preversion-test": "echo \"Running tests for version $npm_package_version...\" && yarn run test:unit",
     "preversion": "yarn run preversion-test",
-    "serve": "vue-cli-service serve dev/main.ts",
+    "serve": "vue-cli-service serve dev/main.js",
     "build": "vue-cli-service build --target lib src/QueryBuilder.vue",
     "test:unit": "vue-cli-service test:unit",
     "lint": "vue-cli-service lint src/ tests/ dev/",

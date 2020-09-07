@@ -1,160 +1,88 @@
 <template>
   <div id="app">
+    <pre v-text="JSON.stringify(this.query, null, 2)"></pre>
     <query-builder
       :config="config"
       v-model="query"
     >
-      <template #groupOperator="props">
-        <div class="query-builder-group-slot__group-selection">
-          <span class="query-builder-group-slot__group-operator">SLOT #groupOperator</span>
-          <select
-            :value="props.currentOperator"
-            @input="props.updateCurrentOperator($event.target.value)"
-          >
-            <option disabled value="">Select an operator</option>
-            <option
-              v-for="operator in props.operators"
-              :key="operator.identifier"
-              :value="operator.identifier"
-              v-text="operator.name"
-            />
-          </select>
-        </div>
-      </template>
-
-      <template #groupControl="props">
-        <group-ctrl-slot :group-ctrl="props"/>
-      </template>
-
-      <template #rule="props">
-        <rule-slot :ruleCtrl="props"/>
-      </template>
     </query-builder>
   </div>
 </template>
 
-<script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
-
+<script>
 import QueryBuilder from '@/QueryBuilder.vue';
-import { RuleSet, QueryBuilderConfig } from '@/types';
+import UserRule from './UserRule.vue';
+import NumberComparisonRule from './NumberComparisonRule.vue';
 
-import InputSelection from './Input.vue';
-import NumberSelection from './Number.vue';
-import GroupCtrlSlot from './GroupCtrlSlot.vue';
-import RuleSlot from './RuleSlot.vue';
-
-@Component({
+export default {
   components: {
     QueryBuilder,
-    GroupCtrlSlot,
-    RuleSlot,
   },
-})
-export default class App extends Vue {
-  query: RuleSet | null = {
-    operatorIdentifier: 'OR',
-    children: [
-      {
-        operatorIdentifier: 'AND',
+  data() {
+    return {
+      query: {
+        operatorIdentifier: 'OR',
         children: [
           {
             identifier: 'txt',
-            value: 'A',
+            value: {
+              field: 'username',
+              operator: 'equals',
+              value: 'foo@bar.com',
+            },
           },
           {
-            identifier: 'txt',
-            value: 'B',
-          },
-          {
-            identifier: 'txt',
-            value: 'C',
-          },
-          {
-            operatorIdentifier: 'AND',
-            children: [
-              {
-                identifier: 'txt',
-                value: 'c',
-              },
-              {
-                identifier: 'txt',
-                value: 'd',
-              },
-              {
-                operatorIdentifier: 'AND',
-                children: [
-                  {
-                    identifier: 'txt',
-                    value: 'a',
-                  },
-                  {
-                    identifier: 'txt',
-                    value: 'b',
-                  },
-                ],
-              },
-            ],
+            identifier: 'num',
+            value: {
+              lft: '20',
+              rgt: '30',
+              operator: '<=',
+            },
           },
         ],
       },
-      {
-        operatorIdentifier: 'AND',
-        children: [
+      config: {
+        operators: [
           {
-            identifier: 'txt',
-            value: 'X',
+            name: 'AND',
+            identifier: 'AND',
           },
           {
-            identifier: 'txt',
-            value: 'Y',
-          },
-          {
-            identifier: 'txt',
-            value: 'Z',
+            name: 'OR',
+            identifier: 'OR',
           },
         ],
+        rules: [
+          {
+            identifier: 'txt',
+            name: 'Text Selection',
+            component: UserRule,
+            initialValue: () => ({
+              field: 'email',
+              operator: 'equals',
+              value: '',
+            }),
+          },
+          {
+            identifier: 'num',
+            name: 'Number Comparison',
+            component: NumberComparisonRule,
+            initialValue: () => ({
+              lft: 0,
+              rgt: 0,
+              operator: '=',
+            }),
+          },
+        ],
+        colors: [
+          'hsl(88, 50%, 55%)',
+          'hsl(187, 100%, 45%)',
+          'hsl(15, 100%, 55%)',
+        ],
       },
-    ],
-  };
-
-  config: QueryBuilderConfig = {
-    operators: [
-      {
-        name: 'AND',
-        identifier: 'AND',
-      },
-      {
-        name: 'OR',
-        identifier: 'OR',
-      },
-    ],
-    rules: [
-      {
-        identifier: 'txt',
-        name: 'Text Selection',
-        component: InputSelection,
-        initialValue: '',
-      },
-      {
-        identifier: 'num',
-        name: 'Number Selection',
-        component: NumberSelection,
-        initialValue: 10,
-      },
-    ],
-    colors: [
-      'hsl(88, 50%, 55%)',
-      'hsl(187, 100%, 45%)',
-      'hsl(15, 100%, 55%)',
-    ],
-    dragging: {
-      animation: 300,
-      disabled: false,
-      ghostClass: 'ghost',
-    },
-  }
-}
+    };
+  },
+};
 </script>
 
 <style lang="scss">

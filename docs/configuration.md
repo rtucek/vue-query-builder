@@ -48,8 +48,8 @@ Every operator is defined by an unique identifier and a visual text.
 Rules are individual conditions within a group and must be defined as components, adhering to the
 [v-modle API](https://vuejs.org/v2/guide/components.html#Using-v-model-on-Components).
 
-Every must have a unique identifier, a display name, the underlying component and optionally an
-individual value.
+Every rule must have an unique identifier, a display name, the underlying component and optionally
+an initialization value.
 
 You may want to wrap an external library with a dedicated component for one of the following
 reasons:
@@ -66,6 +66,12 @@ There are several options for assigning a component to a rule:
  - Pre-defined Vue Components
  - Inline the component's definition directly (requires compiler-included build for templates or use
    render functions directly)
+
+::: tip
+Below, there's a very simple version of employing custom rules. A more advanced version with
+custom operators in rules is demonstrated
+[on CodeSandbox](https://codesandbox.io/s/slot-rule-advanced-01o6l?fontsize=14&hidenavigation=1&module=%2Fsrc%2FApp.vue&theme=dark).
+:::
 
 
 ```js

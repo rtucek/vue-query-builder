@@ -115,7 +115,7 @@ describe('Testing drag\'n\'drop related features', () => {
     expect(groups).toHaveLength(9);
 
     groups.wrappers
-      .forEach((w) => {
+      .forEach(w => {
         expect(w.vm.$props).toHaveProperty('depth');
         const el = (w.find('.query-builder-group__group-children')).element as HTMLDivElement;
         expect(el.style.borderColor).toBeFalsy();
@@ -141,7 +141,7 @@ describe('Testing drag\'n\'drop related features', () => {
     expect(groups).toHaveLength(9);
 
     groups.wrappers
-      .forEach((w) => {
+      .forEach(w => {
         expect(w.vm.$props).toHaveProperty('depth');
         const el = (w.find('.query-builder-group__group-children')).element as HTMLDivElement;
         const targetIdx = w.vm.$props.depth % w.vm.$props.config.colors.length;

@@ -10,7 +10,7 @@ import {
   QueryBuilderConfig, RuleSet, Rule, OperatorDefinition, RuleDefinition,
   GroupOperatorSlotProps, GroupCtrlSlotProps, QueryBuilderGroup as QueryBuilderGroupInterface,
 } from '@/types';
-import { isRuleSet, isRule, isQueryBuilderConfig } from '@/guards';
+import { isQueryBuilderConfig } from '@/guards';
 import MergeTrap from '@/MergeTrap';
 import QueryBuilderChild from './QueryBuilderChild.vue';
 

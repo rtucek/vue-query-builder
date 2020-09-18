@@ -213,7 +213,6 @@ describe('Test basic functionality of QueryBuilder.vue', () => {
       .$parent
       .$emit('delete-child');
 
-
     expect(app.vm.$data.query).toStrictEqual({
       operatorIdentifier: 'and',
       children: [

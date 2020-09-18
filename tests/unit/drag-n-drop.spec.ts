@@ -130,7 +130,7 @@ describe('Test drag\'n\'drop related actions', () => {
     ((qbClone.children[0] as RuleSet).children[3] as RuleSet).children = children;
 
     const group = app.findAll(QueryBuilderGroup)
-      .filter((qb) => {
+      .filter(qb => {
         const vm = qb.vm as QueryBuilderGroupInterface;
 
         return vm.selectedOperator === 'AND'
@@ -151,7 +151,7 @@ describe('Test drag\'n\'drop related actions', () => {
     expect(app.emitted().input[0][0]).toStrictEqual(qbClone);
   });
 
-  it('tests drag\'n\'drop by merging with a parent group', async (done) => {
+  it('tests drag\'n\'drop by merging with a parent group', async done => {
     const app = mount(QueryBuilder, {
       propsData: {
         value,
@@ -170,7 +170,7 @@ describe('Test drag\'n\'drop related actions', () => {
 
     // Removing branch
     const removerComponent = app.findAll(QueryBuilderGroup)
-      .filter((qb) => {
+      .filter(qb => {
         const vm = qb.vm as QueryBuilderGroupInterface;
 
         return vm.selectedOperator === 'AND'
@@ -188,7 +188,7 @@ describe('Test drag\'n\'drop related actions', () => {
 
     // Adding branch
     const adderComponent = app.findAll(QueryBuilderGroup)
-      .filter((qb) => {
+      .filter(qb => {
         const vm = qb.vm as QueryBuilderGroupInterface;
 
         return vm.selectedOperator === 'AND'
@@ -212,7 +212,7 @@ describe('Test drag\'n\'drop related actions', () => {
     done();
   });
 
-  it('tests drag\'n\'dropping with merging within the adding group', async (done) => {
+  it('tests drag\'n\'dropping with merging within the adding group', async done => {
     const app = mount(QueryBuilder, {
       propsData: {
         value,
@@ -229,7 +229,7 @@ describe('Test drag\'n\'drop related actions', () => {
 
     // Removing branch
     const removerComponent = app.findAll(QueryBuilderGroup)
-      .filter((qb) => {
+      .filter(qb => {
         const vm = qb.vm as QueryBuilderGroupInterface;
 
         return vm.selectedOperator === 'AND'
@@ -247,7 +247,7 @@ describe('Test drag\'n\'drop related actions', () => {
 
     // Adding branch
     const adderComponent = app.findAll(QueryBuilderGroup)
-      .filter((qb) => {
+      .filter(qb => {
         const vm = qb.vm as QueryBuilderGroupInterface;
 
         return vm.selectedOperator === 'AND'
@@ -271,7 +271,7 @@ describe('Test drag\'n\'drop related actions', () => {
     done();
   });
 
-  it('tests drag\'n\'dropping with merging within the deleting group', async (done) => {
+  it('tests drag\'n\'dropping with merging within the deleting group', async done => {
     const app = mount(QueryBuilder, {
       propsData: {
         value,
@@ -288,7 +288,7 @@ describe('Test drag\'n\'drop related actions', () => {
 
     // Removing branch
     const removerComponent = app.findAll(QueryBuilderGroup)
-      .filter((qb) => {
+      .filter(qb => {
         const vm = qb.vm as QueryBuilderGroupInterface;
 
         return vm.selectedOperator === 'AND'
@@ -306,7 +306,7 @@ describe('Test drag\'n\'drop related actions', () => {
 
     // Adding branch
     const adderComponent = app.findAll(QueryBuilderGroup)
-      .filter((qb) => {
+      .filter(qb => {
         const vm = qb.vm as QueryBuilderGroupInterface;
 
         return vm.selectedOperator === 'AND'

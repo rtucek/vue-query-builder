@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import Draggable, { MoveEvent } from 'vuedraggable';
+import Draggable, { ChangeEvent } from 'vuedraggable';
 import QueryBuilder from '@/QueryBuilder.vue';
 import QueryBuilderGroup from '@/QueryBuilderGroup.vue';
 import {
@@ -139,7 +139,7 @@ describe('Test drag\'n\'drop related actions', () => {
       })
       .at(0);
 
-    const mvEv: MoveEvent<RuleSet | Rule> = {
+    const mvEv: ChangeEvent<RuleSet | Rule> = {
       moved: {
         element: (group.vm as QueryBuilderGroupInterface).children[0],
         oldIndex: 0,
@@ -178,7 +178,7 @@ describe('Test drag\'n\'drop related actions', () => {
           && (vm.children[0] as Rule).value === 'A';
       })
       .at(0);
-    const rmEv: MoveEvent<RuleSet | Rule> = {
+    const rmEv: ChangeEvent<RuleSet | Rule> = {
       removed: {
         element,
         oldIndex: 1,
@@ -196,7 +196,7 @@ describe('Test drag\'n\'drop related actions', () => {
           && (vm.children[0] as Rule).value === 'X';
       })
       .at(0);
-    const addEv: MoveEvent<RuleSet | Rule> = {
+    const addEv: ChangeEvent<RuleSet | Rule> = {
       added: {
         element,
         newIndex: 3,
@@ -237,7 +237,7 @@ describe('Test drag\'n\'drop related actions', () => {
           && (vm.children[0] as Rule).value === 'D';
       })
       .at(0);
-    const rmEv: MoveEvent<RuleSet | Rule> = {
+    const rmEv: ChangeEvent<RuleSet | Rule> = {
       removed: {
         element,
         oldIndex: 0,
@@ -255,7 +255,7 @@ describe('Test drag\'n\'drop related actions', () => {
           && (vm.children[0] as Rule).value === 'A';
       })
       .at(0);
-    const addEv: MoveEvent<RuleSet | Rule> = {
+    const addEv: ChangeEvent<RuleSet | Rule> = {
       added: {
         element,
         newIndex: 3,
@@ -296,7 +296,7 @@ describe('Test drag\'n\'drop related actions', () => {
           && (vm.children[0] as Rule).value === 'A';
       })
       .at(0);
-    const rmEv: MoveEvent<RuleSet | Rule> = {
+    const rmEv: ChangeEvent<RuleSet | Rule> = {
       removed: {
         element,
         oldIndex: 0,
@@ -314,7 +314,7 @@ describe('Test drag\'n\'drop related actions', () => {
           && (vm.children[0] as Rule).value === 'D';
       })
       .at(0);
-    const addEv: MoveEvent<RuleSet | Rule> = {
+    const addEv: ChangeEvent<RuleSet | Rule> = {
       added: {
         element,
         newIndex: 1,

@@ -3,7 +3,7 @@ import {
   Component, Vue, Prop, Inject,
 } from 'vue-property-decorator';
 import Draggable, {
-  MoveEvent, Moved, Added, Removed,
+  ChangeEvent, Moved, Added, Removed,
 } from 'vuedraggable';
 import { SortableOptions } from 'sortablejs';
 import {
@@ -54,7 +54,7 @@ export default class QueryBuilderGroup extends Vue implements QueryBuilderGroupI
     return [...this.query.children];
   }
 
-  updateSort(ev: MoveEvent<RuleSet | Rule>): void {
+  updateSort(ev: ChangeEvent<RuleSet | Rule>): void {
     if (ev.moved) {
       this.moveSortedChild(ev.moved);
 

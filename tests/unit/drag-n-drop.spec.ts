@@ -147,8 +147,8 @@ describe('Test drag\'n\'drop related actions', () => {
       },
     };
     group.find(Draggable).vm.$emit('change', mvEv);
-    expect(group.emitted()['query-update'][0][0]).toStrictEqual({ operatorIdentifier: 'AND', children });
-    expect(app.emitted().input[0][0]).toStrictEqual(qbClone);
+    expect((group.emitted('query-update') as any)[0][0]).toStrictEqual({ operatorIdentifier: 'AND', children });
+    expect((app.emitted('input') as any)[0][0]).toStrictEqual(qbClone);
   });
 
   it('tests drag\'n\'drop by merging with a parent group', async done => {
@@ -206,8 +206,8 @@ describe('Test drag\'n\'drop related actions', () => {
 
     await flushPromises();
 
-    expect(parent.emitted()['query-update'][0][0]).toStrictEqual(qbClone);
-    expect(app.emitted().input[0][0]).toStrictEqual(qbClone);
+    expect((parent.emitted('query-update') as any)[0][0]).toStrictEqual(qbClone);
+    expect((app.emitted('input') as any)[0][0]).toStrictEqual(qbClone);
 
     done();
   });
@@ -265,8 +265,8 @@ describe('Test drag\'n\'drop related actions', () => {
 
     await flushPromises();
 
-    expect(adderComponent.emitted()['query-update'][0][0]).toStrictEqual(adder);
-    expect(app.emitted().input[0][0]).toStrictEqual(qbClone);
+    expect((adderComponent.emitted('query-update') as any)[0][0]).toStrictEqual(adder);
+    expect((app.emitted('input') as any)[0][0]).toStrictEqual(qbClone);
 
     done();
   });
@@ -324,8 +324,8 @@ describe('Test drag\'n\'drop related actions', () => {
 
     await flushPromises();
 
-    expect(removerComponent.emitted()['query-update'][0][0]).toStrictEqual(remover);
-    expect(app.emitted().input[0][0]).toStrictEqual(qbClone);
+    expect((removerComponent.emitted('query-update') as any)[0][0]).toStrictEqual(remover);
+    expect((app.emitted('input') as any)[0][0]).toStrictEqual(qbClone);
 
     done();
   });

@@ -81,7 +81,7 @@ describe('Test basic functionality of QueryBuilder.vue', () => {
     });
   });
 
-  it('selects a rule', () => {
+  it('selects a rule', async () => {
     const app = mount(App, {
       data: getTemplate,
     });
@@ -102,6 +102,7 @@ describe('Test basic functionality of QueryBuilder.vue', () => {
 
     // Assert update has propagated with default value
     rules.at(2).setSelected();
+    await wrapper.vm.$nextTick();
     expect((addRuleBtn.element as HTMLButtonElement).disabled).toBeFalsy();
     addRuleBtn.trigger('click');
     expect(wrapper.emittedByOrder()).toHaveLength(1);
@@ -111,6 +112,7 @@ describe('Test basic functionality of QueryBuilder.vue', () => {
     });
 
     // Manually update value
+    await wrapper.vm.$nextTick();
     const num = wrapper.find(Component);
     num.vm.$emit('input', 20);
     expect(wrapper.emittedByOrder()).toHaveLength(2);
@@ -120,7 +122,7 @@ describe('Test basic functionality of QueryBuilder.vue', () => {
     });
   });
 
-  it('makes use of an initial value\'s factory function', () => {
+  it('makes use of an initial value\'s factory function', async () => {
     const initialValue = jest.fn(() => 'Hello World');
 
     const data = getTemplate();
@@ -141,12 +143,19 @@ describe('Test basic functionality of QueryBuilder.vue', () => {
     const wrapper = app.find(QueryBuilder);
 
     // Assert rules are available
-    const rules = wrapper.find('.query-builder-group__group-control select').findAll('option');
-    const addRuleBtn = wrapper.find('.query-builder-group__rule-adding-button');
+    const group = wrapper.find(QueryBuilderGroup);
+    const rules = group.find('.query-builder-group__group-control select').findAll('option');
+    const addRuleBtn = group.find('.query-builder-group__rule-adding-button');
 
     // Assert update has propagated with default value
     rules.at(1).setSelected();
+    await group.vm.$nextTick();
     addRuleBtn.trigger('click');
+    expect(group.emittedByOrder()).toHaveLength(1);
+    expect(group.emittedByOrder()[0]).toStrictEqual({
+      name: 'query-update',
+      args: [{ operatorIdentifier: 'and', children: [{ identifier: 'txt', value: 'Hello World' }] }],
+    });
     expect(wrapper.emittedByOrder()).toHaveLength(1);
     expect(wrapper.emittedByOrder()[0]).toStrictEqual({
       name: 'input',
@@ -228,7 +237,7 @@ describe('Test basic functionality of QueryBuilder.vue', () => {
     });
   });
 
-  it('renders a complex dataset', () => {
+  it('renders a complex dataset', async () => {
     const data = () => ({
       query: {
         operatorIdentifier: 'or',
@@ -423,6 +432,7 @@ describe('Test basic functionality of QueryBuilder.vue', () => {
       .filter(({ vm: { $props } }) => $props.query.identifier === 'txt' && $props.query.value === 'd')
       .at(0);
 
+    await wrapper.vm.$nextTick();
     rule.find('.dummy-component').vm.$emit('input', 'D');
     expect(app.vm.$data.query).toStrictEqual({
       operatorIdentifier: 'or',
@@ -491,6 +501,7 @@ describe('Test basic functionality of QueryBuilder.vue', () => {
     });
 
     // Add another group
+    await wrapper.vm.$nextTick();
     qbGroup.find('.query-builder-group__group-adding-button')
       .trigger('click');
     expect(app.vm.$data.query).toStrictEqual({
@@ -564,6 +575,7 @@ describe('Test basic functionality of QueryBuilder.vue', () => {
     });
 
     // Remove a rule
+    await wrapper.vm.$nextTick();
     rule.vm.$parent.$emit('delete-child');
     expect(app.vm.$data.query).toStrictEqual({
       operatorIdentifier: 'or',

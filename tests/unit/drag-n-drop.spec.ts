@@ -129,7 +129,7 @@ describe('Test drag\'n\'drop related actions', () => {
     children.splice(2, 0, children.splice(0, 1)[0]);
     ((qbClone.children[0] as RuleSet).children[3] as RuleSet).children = children;
 
-    const group = app.findAll(QueryBuilderGroup)
+    const group = app.findAllComponents(QueryBuilderGroup)
       .filter(qb => {
         const vm = qb.vm as QueryBuilderGroupInterface;
 
@@ -146,7 +146,7 @@ describe('Test drag\'n\'drop related actions', () => {
         newIndex: 2,
       },
     };
-    group.find(Draggable).vm.$emit('change', mvEv);
+    group.findComponent(Draggable).vm.$emit('change', mvEv);
     expect((group.emitted('query-update') as any)[0][0]).toStrictEqual({ operatorIdentifier: 'AND', children });
     expect((app.emitted('input') as any)[0][0]).toStrictEqual(qbClone);
   });
@@ -166,10 +166,10 @@ describe('Test drag\'n\'drop related actions', () => {
     adder.children.splice(3, 0, element);
 
     // Component we'd need to assert against
-    const parent = app.find(QueryBuilderGroup);
+    const parent = app.findComponent(QueryBuilderGroup);
 
     // Removing branch
-    const removerComponent = app.findAll(QueryBuilderGroup)
+    const removerComponent = app.findAllComponents(QueryBuilderGroup)
       .filter(qb => {
         const vm = qb.vm as QueryBuilderGroupInterface;
 
@@ -184,10 +184,10 @@ describe('Test drag\'n\'drop related actions', () => {
         oldIndex: 1,
       },
     };
-    removerComponent.find(Draggable).vm.$emit('change', rmEv);
+    removerComponent.findComponent(Draggable).vm.$emit('change', rmEv);
 
     // Adding branch
-    const adderComponent = app.findAll(QueryBuilderGroup)
+    const adderComponent = app.findAllComponents(QueryBuilderGroup)
       .filter(qb => {
         const vm = qb.vm as QueryBuilderGroupInterface;
 
@@ -202,7 +202,7 @@ describe('Test drag\'n\'drop related actions', () => {
         newIndex: 3,
       },
     };
-    adderComponent.find(Draggable).vm.$emit('change', addEv);
+    adderComponent.findComponent(Draggable).vm.$emit('change', addEv);
 
     await flushPromises();
 
@@ -228,7 +228,7 @@ describe('Test drag\'n\'drop related actions', () => {
     adder.children.splice(3, 0, element);
 
     // Removing branch
-    const removerComponent = app.findAll(QueryBuilderGroup)
+    const removerComponent = app.findAllComponents(QueryBuilderGroup)
       .filter(qb => {
         const vm = qb.vm as QueryBuilderGroupInterface;
 
@@ -243,10 +243,10 @@ describe('Test drag\'n\'drop related actions', () => {
         oldIndex: 0,
       },
     };
-    removerComponent.find(Draggable).vm.$emit('change', rmEv);
+    removerComponent.findComponent(Draggable).vm.$emit('change', rmEv);
 
     // Adding branch
-    const adderComponent = app.findAll(QueryBuilderGroup)
+    const adderComponent = app.findAllComponents(QueryBuilderGroup)
       .filter(qb => {
         const vm = qb.vm as QueryBuilderGroupInterface;
 
@@ -261,7 +261,7 @@ describe('Test drag\'n\'drop related actions', () => {
         newIndex: 3,
       },
     };
-    adderComponent.find(Draggable).vm.$emit('change', addEv);
+    adderComponent.findComponent(Draggable).vm.$emit('change', addEv);
 
     await flushPromises();
 
@@ -287,7 +287,7 @@ describe('Test drag\'n\'drop related actions', () => {
     adder.children.splice(1, 0, element);
 
     // Removing branch
-    const removerComponent = app.findAll(QueryBuilderGroup)
+    const removerComponent = app.findAllComponents(QueryBuilderGroup)
       .filter(qb => {
         const vm = qb.vm as QueryBuilderGroupInterface;
 
@@ -302,10 +302,10 @@ describe('Test drag\'n\'drop related actions', () => {
         oldIndex: 0,
       },
     };
-    removerComponent.find(Draggable).vm.$emit('change', rmEv);
+    removerComponent.findComponent(Draggable).vm.$emit('change', rmEv);
 
     // Adding branch
-    const adderComponent = app.findAll(QueryBuilderGroup)
+    const adderComponent = app.findAllComponents(QueryBuilderGroup)
       .filter(qb => {
         const vm = qb.vm as QueryBuilderGroupInterface;
 
@@ -320,7 +320,7 @@ describe('Test drag\'n\'drop related actions', () => {
         newIndex: 1,
       },
     };
-    adderComponent.find(Draggable).vm.$emit('change', addEv);
+    adderComponent.findComponent(Draggable).vm.$emit('change', addEv);
 
     await flushPromises();
 

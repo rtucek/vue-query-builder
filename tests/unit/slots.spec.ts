@@ -79,7 +79,7 @@ describe('Testing slot related features', () => {
       },
     });
 
-    const group = app.find(QueryBuilderGroup);
+    const group = app.findComponent(QueryBuilderGroup);
     const slot = group.find('.slot-wrapper');
 
     // Check if current operator is selected
@@ -138,7 +138,7 @@ describe('Testing slot related features', () => {
     });
 
     const slot = app.find('.slot-wrapper');
-    const group = app.find(QueryBuilderGroup);
+    const group = app.findComponent(QueryBuilderGroup);
 
     // Some data we'll be using for our assertions
     const query: RuleSet = JSON.parse(JSON.stringify(propsData.value));
@@ -190,7 +190,7 @@ describe('Testing slot related features', () => {
       },
     });
 
-    const rule = app.find(QueryBuilderRule);
+    const rule = app.findComponent(QueryBuilderRule);
     const slot = rule.find('.slot-wrapper');
     const ruleComponent = slot.find('.slot-rule');
 

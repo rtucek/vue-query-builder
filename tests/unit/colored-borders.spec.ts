@@ -2,6 +2,8 @@ import { mount } from '@vue/test-utils';
 import { QueryBuilderConfig, RuleSet } from '@/types';
 import QueryBuilder from '@/QueryBuilder.vue';
 import QueryBuilderGroup from '@/QueryBuilderGroup.vue';
+import QueryBuilderChild from '@/QueryBuilderChild.vue';
+import Draggable from 'vuedraggable';
 import Component from '../components/Component.vue';
 
 describe('Testing drag\'n\'drop related features', () => {
@@ -111,13 +113,13 @@ describe('Testing drag\'n\'drop related features', () => {
       },
     });
 
-    const groups = app.findAll(QueryBuilderGroup);
+    const groups = app.findAllComponents(QueryBuilderGroup);
     expect(groups).toHaveLength(9);
 
     groups.wrappers
       .forEach(w => {
         expect(w.vm.$props).toHaveProperty('depth');
-        const el = (w.find('.query-builder-group__group-children')).element as HTMLDivElement;
+        const el = (w.findComponent(QueryBuilderChild)).element as HTMLDivElement;
         expect(el.style.borderColor).toBeFalsy();
       });
   });
@@ -137,13 +139,13 @@ describe('Testing drag\'n\'drop related features', () => {
       },
     });
 
-    const groups = app.findAll(QueryBuilderGroup);
+    const groups = app.findAllComponents(QueryBuilderGroup);
     expect(groups).toHaveLength(9);
 
     groups.wrappers
       .forEach(w => {
         expect(w.vm.$props).toHaveProperty('depth');
-        const el = (w.find('.query-builder-group__group-children')).element as HTMLDivElement;
+        const el = (w.findComponent(Draggable)).element as HTMLDivElement;
         const targetIdx = w.vm.$props.depth % w.vm.$props.config.colors.length;
         expect(el.style).toHaveProperty('borderColor', colors[targetIdx]);
       });

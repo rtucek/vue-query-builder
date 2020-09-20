@@ -17,6 +17,7 @@ module.exports = {
     'class-methods-use-this': 'warn',
     'no-use-before-define': ['error', { functions: false }],
     'no-param-reassign': ['error', { props: false }],
+    'arrow-parens': ['error', 'as-needed'],
   },
 
   parserOptions: {
@@ -31,6 +32,13 @@ module.exports = {
       ],
       env: {
         jest: true,
+      },
+    },
+    {
+      files: ['**/*.ts', '**/*.vue'],
+      rules: {
+        'no-unused-vars': 'off',
+        '@typescript-eslint/no-unused-vars': ['error'],
       },
     },
   ],

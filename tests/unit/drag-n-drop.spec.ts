@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import Draggable, { MoveEvent } from 'vuedraggable';
+import Draggable, { ChangeEvent } from 'vuedraggable';
 import QueryBuilder from '@/QueryBuilder.vue';
 import QueryBuilderGroup from '@/QueryBuilderGroup.vue';
 import {
@@ -129,8 +129,8 @@ describe('Test drag\'n\'drop related actions', () => {
     children.splice(2, 0, children.splice(0, 1)[0]);
     ((qbClone.children[0] as RuleSet).children[3] as RuleSet).children = children;
 
-    const group = app.findAll(QueryBuilderGroup)
-      .filter((qb) => {
+    const group = app.findAllComponents(QueryBuilderGroup)
+      .filter(qb => {
         const vm = qb.vm as QueryBuilderGroupInterface;
 
         return vm.selectedOperator === 'AND'
@@ -139,19 +139,19 @@ describe('Test drag\'n\'drop related actions', () => {
       })
       .at(0);
 
-    const mvEv: MoveEvent<RuleSet | Rule> = {
+    const mvEv: ChangeEvent<RuleSet | Rule> = {
       moved: {
         element: (group.vm as QueryBuilderGroupInterface).children[0],
         oldIndex: 0,
         newIndex: 2,
       },
     };
-    group.find(Draggable).vm.$emit('change', mvEv);
-    expect(group.emitted()['query-update'][0][0]).toStrictEqual({ operatorIdentifier: 'AND', children });
-    expect(app.emitted().input[0][0]).toStrictEqual(qbClone);
+    group.findComponent(Draggable).vm.$emit('change', mvEv);
+    expect((group.emitted('query-update') as any)[0][0]).toStrictEqual({ operatorIdentifier: 'AND', children });
+    expect((app.emitted('input') as any)[0][0]).toStrictEqual(qbClone);
   });
 
-  it('tests drag\'n\'drop by merging with a parent group', async (done) => {
+  it('tests drag\'n\'drop by merging with a parent group', async done => {
     const app = mount(QueryBuilder, {
       propsData: {
         value,
@@ -166,11 +166,11 @@ describe('Test drag\'n\'drop related actions', () => {
     adder.children.splice(3, 0, element);
 
     // Component we'd need to assert against
-    const parent = app.find(QueryBuilderGroup);
+    const parent = app.findComponent(QueryBuilderGroup);
 
     // Removing branch
-    const removerComponent = app.findAll(QueryBuilderGroup)
-      .filter((qb) => {
+    const removerComponent = app.findAllComponents(QueryBuilderGroup)
+      .filter(qb => {
         const vm = qb.vm as QueryBuilderGroupInterface;
 
         return vm.selectedOperator === 'AND'
@@ -178,17 +178,17 @@ describe('Test drag\'n\'drop related actions', () => {
           && (vm.children[0] as Rule).value === 'A';
       })
       .at(0);
-    const rmEv: MoveEvent<RuleSet | Rule> = {
+    const rmEv: ChangeEvent<RuleSet | Rule> = {
       removed: {
         element,
         oldIndex: 1,
       },
     };
-    removerComponent.find(Draggable).vm.$emit('change', rmEv);
+    removerComponent.findComponent(Draggable).vm.$emit('change', rmEv);
 
     // Adding branch
-    const adderComponent = app.findAll(QueryBuilderGroup)
-      .filter((qb) => {
+    const adderComponent = app.findAllComponents(QueryBuilderGroup)
+      .filter(qb => {
         const vm = qb.vm as QueryBuilderGroupInterface;
 
         return vm.selectedOperator === 'AND'
@@ -196,23 +196,23 @@ describe('Test drag\'n\'drop related actions', () => {
           && (vm.children[0] as Rule).value === 'X';
       })
       .at(0);
-    const addEv: MoveEvent<RuleSet | Rule> = {
+    const addEv: ChangeEvent<RuleSet | Rule> = {
       added: {
         element,
         newIndex: 3,
       },
     };
-    adderComponent.find(Draggable).vm.$emit('change', addEv);
+    adderComponent.findComponent(Draggable).vm.$emit('change', addEv);
 
     await flushPromises();
 
-    expect(parent.emitted()['query-update'][0][0]).toStrictEqual(qbClone);
-    expect(app.emitted().input[0][0]).toStrictEqual(qbClone);
+    expect((parent.emitted('query-update') as any)[0][0]).toStrictEqual(qbClone);
+    expect((app.emitted('input') as any)[0][0]).toStrictEqual(qbClone);
 
     done();
   });
 
-  it('tests drag\'n\'dropping with merging within the adding group', async (done) => {
+  it('tests drag\'n\'dropping with merging within the adding group', async done => {
     const app = mount(QueryBuilder, {
       propsData: {
         value,
@@ -228,8 +228,8 @@ describe('Test drag\'n\'drop related actions', () => {
     adder.children.splice(3, 0, element);
 
     // Removing branch
-    const removerComponent = app.findAll(QueryBuilderGroup)
-      .filter((qb) => {
+    const removerComponent = app.findAllComponents(QueryBuilderGroup)
+      .filter(qb => {
         const vm = qb.vm as QueryBuilderGroupInterface;
 
         return vm.selectedOperator === 'AND'
@@ -237,17 +237,17 @@ describe('Test drag\'n\'drop related actions', () => {
           && (vm.children[0] as Rule).value === 'D';
       })
       .at(0);
-    const rmEv: MoveEvent<RuleSet | Rule> = {
+    const rmEv: ChangeEvent<RuleSet | Rule> = {
       removed: {
         element,
         oldIndex: 0,
       },
     };
-    removerComponent.find(Draggable).vm.$emit('change', rmEv);
+    removerComponent.findComponent(Draggable).vm.$emit('change', rmEv);
 
     // Adding branch
-    const adderComponent = app.findAll(QueryBuilderGroup)
-      .filter((qb) => {
+    const adderComponent = app.findAllComponents(QueryBuilderGroup)
+      .filter(qb => {
         const vm = qb.vm as QueryBuilderGroupInterface;
 
         return vm.selectedOperator === 'AND'
@@ -255,23 +255,23 @@ describe('Test drag\'n\'drop related actions', () => {
           && (vm.children[0] as Rule).value === 'A';
       })
       .at(0);
-    const addEv: MoveEvent<RuleSet | Rule> = {
+    const addEv: ChangeEvent<RuleSet | Rule> = {
       added: {
         element,
         newIndex: 3,
       },
     };
-    adderComponent.find(Draggable).vm.$emit('change', addEv);
+    adderComponent.findComponent(Draggable).vm.$emit('change', addEv);
 
     await flushPromises();
 
-    expect(adderComponent.emitted()['query-update'][0][0]).toStrictEqual(adder);
-    expect(app.emitted().input[0][0]).toStrictEqual(qbClone);
+    expect((adderComponent.emitted('query-update') as any)[0][0]).toStrictEqual(adder);
+    expect((app.emitted('input') as any)[0][0]).toStrictEqual(qbClone);
 
     done();
   });
 
-  it('tests drag\'n\'dropping with merging within the deleting group', async (done) => {
+  it('tests drag\'n\'dropping with merging within the deleting group', async done => {
     const app = mount(QueryBuilder, {
       propsData: {
         value,
@@ -287,8 +287,8 @@ describe('Test drag\'n\'drop related actions', () => {
     adder.children.splice(1, 0, element);
 
     // Removing branch
-    const removerComponent = app.findAll(QueryBuilderGroup)
-      .filter((qb) => {
+    const removerComponent = app.findAllComponents(QueryBuilderGroup)
+      .filter(qb => {
         const vm = qb.vm as QueryBuilderGroupInterface;
 
         return vm.selectedOperator === 'AND'
@@ -296,17 +296,17 @@ describe('Test drag\'n\'drop related actions', () => {
           && (vm.children[0] as Rule).value === 'A';
       })
       .at(0);
-    const rmEv: MoveEvent<RuleSet | Rule> = {
+    const rmEv: ChangeEvent<RuleSet | Rule> = {
       removed: {
         element,
         oldIndex: 0,
       },
     };
-    removerComponent.find(Draggable).vm.$emit('change', rmEv);
+    removerComponent.findComponent(Draggable).vm.$emit('change', rmEv);
 
     // Adding branch
-    const adderComponent = app.findAll(QueryBuilderGroup)
-      .filter((qb) => {
+    const adderComponent = app.findAllComponents(QueryBuilderGroup)
+      .filter(qb => {
         const vm = qb.vm as QueryBuilderGroupInterface;
 
         return vm.selectedOperator === 'AND'
@@ -314,18 +314,18 @@ describe('Test drag\'n\'drop related actions', () => {
           && (vm.children[0] as Rule).value === 'D';
       })
       .at(0);
-    const addEv: MoveEvent<RuleSet | Rule> = {
+    const addEv: ChangeEvent<RuleSet | Rule> = {
       added: {
         element,
         newIndex: 1,
       },
     };
-    adderComponent.find(Draggable).vm.$emit('change', addEv);
+    adderComponent.findComponent(Draggable).vm.$emit('change', addEv);
 
     await flushPromises();
 
-    expect(removerComponent.emitted()['query-update'][0][0]).toStrictEqual(remover);
-    expect(app.emitted().input[0][0]).toStrictEqual(qbClone);
+    expect((removerComponent.emitted('query-update') as any)[0][0]).toStrictEqual(remover);
+    expect((app.emitted('input') as any)[0][0]).toStrictEqual(qbClone);
 
     done();
   });

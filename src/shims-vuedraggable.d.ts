@@ -1,6 +1,4 @@
 declare module 'vuedraggable' {
-  import Vue, { ComponentOptions } from 'vue';
-
   type element<El> = {
     element: El,
   }
@@ -19,13 +17,9 @@ declare module 'vuedraggable' {
 
   export type Removed<El> = element<El> & Older
 
-  export type MoveEvent<El> = {
+  export type ChangeEvent<El> = {
     moved?: Moved<El>,
     added?: Added<El>,
     removed?: Removed<El>,
   }
-
-  const draggableComponent: ComponentOptions<Vue>;
-
-  export default draggableComponent;
 }

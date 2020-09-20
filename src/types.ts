@@ -48,6 +48,13 @@ export interface RuleSlotProps {
   updateRuleData: (newData: any) => void,
 }
 
+export interface QueryBuilderGroup extends Vue {
+  selectedOperator: string,
+  depth: number,
+  trap: ((position: number, newChild: RuleSet | Rule) => void) | null,
+  children: Array<RuleSet | Rule>,
+}
+
 export interface ComponentRegistration {
   component: QueryBuilderGroup,
   ev: RuleSet,
@@ -57,11 +64,4 @@ export interface ComponentRegistration {
 
 export interface MergeTrap {
   registerSortUpdate(update: ComponentRegistration): void,
-}
-
-export interface QueryBuilderGroup extends Vue {
-  selectedOperator: string,
-  depth: number,
-  trap: ((position: number, newChild: RuleSet | Rule) => void) | null,
-  children: Array<RuleSet | Rule>,
 }

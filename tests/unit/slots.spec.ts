@@ -79,7 +79,7 @@ describe('Testing slot related features', () => {
       },
     });
 
-    const group = app.find(QueryBuilderGroup);
+    const group = app.findComponent(QueryBuilderGroup);
     const slot = group.find('.slot-wrapper');
 
     // Check if current operator is selected
@@ -96,13 +96,13 @@ describe('Testing slot related features', () => {
 
     // Update operator
     options.at(0).setSelected();
-    expect(group.emitted()['query-update'][0][0]).toStrictEqual({ operatorIdentifier: 'AND', children: propsData.value.children });
+    expect((group.emitted('query-update') as any)[0][0]).toStrictEqual({ operatorIdentifier: 'AND', children: propsData.value.children });
     const expected: RuleSet = JSON.parse(JSON.stringify(propsData.value));
     expected.operatorIdentifier = 'AND';
-    expect(app.emitted().input[0][0]).toStrictEqual(expected);
+    expect((app.emitted('input') as any)[0][0]).toStrictEqual(expected);
   });
 
-  it('tests the `groupControl` slot', () => {
+  it('tests the `groupControl` slot', async () => {
     const app = mount(QueryBuilder, {
       propsData,
       scopedSlots: {
@@ -138,7 +138,7 @@ describe('Testing slot related features', () => {
     });
 
     const slot = app.find('.slot-wrapper');
-    const group = app.find(QueryBuilderGroup);
+    const group = app.findComponent(QueryBuilderGroup);
 
     // Some data we'll be using for our assertions
     const query: RuleSet = JSON.parse(JSON.stringify(propsData.value));
@@ -156,16 +156,17 @@ describe('Testing slot related features', () => {
     slot.find('.slot-new-rule').trigger('click');
     children.push({ identifier: 'txt', value: 'foo' });
     query.children = [...children];
-    expect(group.emitted()['query-update'][0][0]).toStrictEqual({ operatorIdentifier: 'OR', children });
-    expect(app.emitted().input[0][0]).toStrictEqual(query);
+    expect((group.emitted('query-update') as any)[0][0]).toStrictEqual({ operatorIdentifier: 'OR', children });
+    expect((app.emitted('input') as any)[0][0]).toStrictEqual(query);
 
     // Add new group
     app.setProps({ value: { ...query }, config: { ...propsData.config } });
+    await app.vm.$nextTick();
     slot.find('.slot-new-group').trigger('click');
     children.push({ operatorIdentifier: 'AND', children: [] });
     query.children = [...children];
-    expect(group.emitted()['query-update'][1][0]).toStrictEqual({ operatorIdentifier: 'OR', children });
-    expect(app.emitted().input[1][0]).toStrictEqual(query);
+    expect((group.emitted('query-update') as any)[1][0]).toStrictEqual({ operatorIdentifier: 'OR', children });
+    expect((app.emitted('input') as any)[1][0]).toStrictEqual(query);
   });
 
   it('tests the `rule` slot', () => {
@@ -189,7 +190,7 @@ describe('Testing slot related features', () => {
       },
     });
 
-    const rule = app.find(QueryBuilderRule);
+    const rule = app.findComponent(QueryBuilderRule);
     const slot = rule.find('.slot-wrapper');
     const ruleComponent = slot.find('.slot-rule');
 
@@ -197,11 +198,11 @@ describe('Testing slot related features', () => {
     expect(ruleComponent.is(Component)).toBeTruthy();
     expect(ruleComponent.vm.$props.value).toBe('A');
     ruleComponent.vm.$emit('input', 'a');
-    expect(rule.emitted()['query-update'][0][0]).toStrictEqual({ identifier: 'txt', value: 'a' });
+    expect((rule.emitted('query-update') as any)[0][0]).toStrictEqual({ identifier: 'txt', value: 'a' });
 
     // Verify update event propagates
     const expected: RuleSet = JSON.parse(JSON.stringify(propsData.value));
     (expected.children[0] as Rule).value = 'a';
-    expect(app.emitted().input[0][0]).toStrictEqual(expected);
+    expect((app.emitted('input') as any)[0][0]).toStrictEqual(expected);
   });
 });

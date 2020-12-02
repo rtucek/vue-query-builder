@@ -44,7 +44,7 @@
     "vue": "^2.6.10",
     "vue-class-component": "^7.2.6",
     "vue-property-decorator": "^9.0.0",
-    "vuedraggable": "2.24.1"
+    "vuedraggable": "^2.24.1"
   },
   "devDependencies": {
     "@types/jest": "^26.0.14",
@@ -56,13 +56,13 @@
     "@vue/cli-plugin-unit-jest": "^4.1.2",
     "@vue/cli-service": "^4.0.5",
     "@vue/eslint-config-airbnb": "^5.1.0",
-    "@vue/eslint-config-typescript": "^5.1.0",
-    "@vue/test-utils": "1.1.0",
+    "@vue/eslint-config-typescript": "^7.0.0",
+    "@vue/test-utils": "^1.1.0",
     "babel-eslint": "^10.0.1",
     "eslint": "^7.9.0",
-    "eslint-plugin-vue": "^6.2.2",
+    "eslint-plugin-vue": "^7.1.0",
     "lint-staged": "^10.4.0",
-    "node-sass": "^4.9.0",
+    "node-sass": "^5.0.0",
     "sass-loader": "^10.0.2",
     "typescript": "^4.0.3",
     "vue-template-compiler": "^2.5.21",

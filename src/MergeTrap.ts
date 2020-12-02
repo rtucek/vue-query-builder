@@ -135,8 +135,8 @@ export default class MergeTrap implements MergeTrapInterface {
     this.eventBus = new Vue();
 
     Promise.all<ComponentRegistration>([
-      new Promise(res => this.eventBus.$once('adderRegistered', res)),
-      new Promise(res => this.eventBus.$once('removerRegistered', res)),
+      new Promise(res => this.eventBus.$once('adder-registered', res)),
+      new Promise(res => this.eventBus.$once('remover-registered', res)),
     ])
       .then((args: ComponentRegistration[]) => triggerUpdate(args[0], args[1]));
   }
@@ -150,10 +150,10 @@ export default class MergeTrap implements MergeTrapInterface {
   }
 
   protected registerAdder(ev: ComponentRegistration): void {
-    this.eventBus.$emit('adderRegistered', ev);
+    this.eventBus.$emit('adder-registered', ev);
   }
 
   protected registerRemover(ev: ComponentRegistration): void {
-    this.eventBus.$emit('removerRegistered', ev);
+    this.eventBus.$emit('remover-registered', ev);
   }
 }

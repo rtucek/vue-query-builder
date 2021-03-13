@@ -1,6 +1,6 @@
 {
   "name": "query-builder-vue",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "license": "MIT",
   "repository": "https://github.com/rtucek/vue-query-builder",
   "description": "A query-builder library for Vue.js",

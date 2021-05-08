@@ -4,6 +4,10 @@ node_js:
   - node
   - lts/*
 
+jobs:
+  allow_failures:
+    - node_js: node
+
 cache:
   yarn: true
 

@@ -6,7 +6,7 @@ node_js:
 
 jobs:
   allow_failures:
-    - node
+    - node_js: node
 
 cache:
   yarn: true

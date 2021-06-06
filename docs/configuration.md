@@ -46,7 +46,7 @@ Every operator is defined by an unique identifier and a visual text.
 ## Rules
 
 Rules are individual conditions within a group and must be defined as components, adhering to the
-[v-modle API](https://vuejs.org/v2/guide/components.html#Using-v-model-on-Components).
+[v-model API](https://vuejs.org/v2/guide/components.html#Using-v-model-on-Components).
 
 Every rule must have an unique identifier, a display name, the underlying component and optionally
 an initialization value.

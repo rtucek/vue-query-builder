@@ -27,7 +27,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2.3.4
 
-      - name: Setup Node.js for ${{ matrix.node }}
+      - name: Setup Node.js version ${{ matrix.node }}
         uses: actions/setup-node@v2.4.0
         with:
           node-version: ${{ matrix.node }}
@@ -36,5 +36,5 @@ jobs:
       - name: Install Dependencies
         run: yarn install --frozen-lockfile
 
-      - name: yarn test on Ubuntu
+      - name: Unit Test
         run: yarn run test:unit

@@ -1,4 +1,5 @@
-[![Build Status](https://travis-ci.org/rtucek/vue-query-builder.svg?branch=master)](https://travis-ci.org/rtucek/vue-query-builder)
+[![CI Testing](https://github.com/rtucek/vue-query-builder/actions/workflows/ci-testing.yml/badge.svg)](https://github.com/rtucek/vue-query-builder/actions/workflows/ci-testing.yml)
+[![Lint](https://github.com/rtucek/vue-query-builder/actions/workflows/lint.yml/badge.svg)](https://github.com/rtucek/vue-query-builder/actions/workflows/lint.yml)
 [![npm version](https://img.shields.io/npm/v/query-builder-vue)](https://www.npmjs.com/package/query-builder-vue)
 [![MIT LICENSE](https://img.shields.io/npm/l/query-builder-vue)](https://github.com/rtucek/vue-query-builder/blob/master/LICENSE)
 

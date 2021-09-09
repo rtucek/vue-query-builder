@@ -1,9 +1,9 @@
 import { mount } from '@vue/test-utils';
+import Draggable from 'vuedraggable';
 import { QueryBuilderConfig, RuleSet } from '@/types';
 import QueryBuilder from '@/QueryBuilder.vue';
 import QueryBuilderGroup from '@/QueryBuilderGroup.vue';
 import QueryBuilderChild from '@/QueryBuilderChild.vue';
-import Draggable from 'vuedraggable';
 import Component from '../components/Component.vue';
 
 describe('Testing drag\'n\'drop related features', () => {

@@ -9,10 +9,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2.3.4
+        uses: actions/checkout@v2
 
       - name: Setup Node.js
-        uses: actions/setup-node@v2.4.0
+        uses: actions/setup-node@v2
         with:
           cache: "yarn"
 
@@ -23,7 +23,7 @@ jobs:
         run: yarn run docs:build
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v2.2.4
+        uses: actions/upload-artifact@v2
         with:
           name: api-docs
           path: docs/.vuepress/dist/
@@ -34,12 +34,12 @@ jobs:
 
     steps:
       - name: Download build artifact
-        uses: actions/download-artifact@v2.0.10
+        uses: actions/download-artifact@v2
         with:
           name: api-docs
 
       - name: Deploy docs
-        uses: crazy-max/ghaction-github-pages@v2.5.0
+        uses: crazy-max/ghaction-github-pages@v2
         with:
           target_branch: gh-pages
           build_dir: .

@@ -38,6 +38,7 @@ export interface GroupOperatorSlotProps {
 }
 
 export interface GroupCtrlSlotProps {
+  maxDepthExeeded: boolean,
   rules: RuleDefinition[],
   addRule: (newRule: string) => void,
   newGroup: () => void,

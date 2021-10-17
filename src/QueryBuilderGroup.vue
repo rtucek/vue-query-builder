@@ -184,6 +184,7 @@ export default class QueryBuilderGroup extends Vue implements QueryBuilderGroupI
 
   get groupControlSlotProps(): GroupCtrlSlotProps {
     return {
+      maxDepthExeeded: this.maxDepthExeeded,
       rules: this.rules,
       addRule: (newRule: string) => {
         const currentRule = this.selectedRule;
@@ -249,6 +250,11 @@ export default class QueryBuilderGroup extends Vue implements QueryBuilderGroupI
   }
 
   newGroup(): void {
+    if (this.maxDepthExeeded) {
+      // noop, as max depth reached
+      return;
+    }
+
     const children = [...this.children];
     children.push({
       operatorIdentifier: this.config.operators[0].identifier,

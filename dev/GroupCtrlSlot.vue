@@ -32,13 +32,15 @@ export default class GroupCtrlSlot extends Vue {
     >
       Add Rule
     </button>
-    <div class="query-builder-group-slot__spacer"/>
-    <button
-      @click="groupCtrl.newGroup"
-      class="query-builder-group-slot__group-adding-button"
-    >
-      Add Group
-    </button>
+    <template v-if="! groupCtrl.maxDepthExeeded">
+      <div class="query-builder-group-slot__spacer"/>
+      <button
+        @click="groupCtrl.newGroup"
+        class="query-builder-group-slot__group-adding-button"
+      >
+        Add Group
+      </button>
+    </template>
   </div>
 </template>
 

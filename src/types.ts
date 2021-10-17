@@ -26,6 +26,7 @@ export interface RuleDefinition {
 export interface QueryBuilderConfig {
   operators: OperatorDefinition[],
   rules: RuleDefinition[],
+  maxDepth?: number,
   colors?: string[],
   dragging?: SortableOptions,
 }

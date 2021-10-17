@@ -72,5 +72,6 @@ export function isQueryBuilderConfig(param: any): param is QueryBuilderConfig {
         Array.isArray(param.colors)
           && param.colors.every((color: any) => typeof color === 'string')
       )
-    );
+    )
+    && (['undefined', 'number'].includes(typeof param.maxDepth));
 }

@@ -10,7 +10,7 @@ import {
   QueryBuilderConfig, RuleSet, Rule, OperatorDefinition, RuleDefinition,
   GroupOperatorSlotProps, GroupCtrlSlotProps, QueryBuilderGroup as QueryBuilderGroupInterface,
 } from '@/types';
-import { isQueryBuilderConfig } from '@/guards';
+import { isQueryBuilderConfig, isRule } from '@/guards';
 import MergeTrap from '@/MergeTrap';
 import QueryBuilderChild from './QueryBuilderChild.vue';
 
@@ -51,6 +51,11 @@ export default class QueryBuilderGroup extends Vue implements QueryBuilderGroupI
   selectedRule: string = ''
 
   get children(): Array<RuleSet | Rule> {
+    if (this.maxDepthExeeded) {
+      // filter children exclusively
+      return [...this.query.children].filter(isRule);
+    }
+
     return [...this.query.children];
   }
 
@@ -134,6 +139,14 @@ export default class QueryBuilderGroup extends Vue implements QueryBuilderGroupI
 
   get childDepthClass(): string {
     return `query-builder-group__group-children--depth-${this.childDepth}`;
+  }
+
+  get maxDepthExeeded(): boolean {
+    if (typeof this.config.maxDepth !== 'number') {
+      return false;
+    }
+
+    return this.depth >= this.config.maxDepth;
   }
 
   get borderColor(): string {
@@ -346,13 +359,15 @@ export default class QueryBuilderGroup extends Vue implements QueryBuilderGroupI
           >
             Add Rule
           </button>
-          <div class="query-builder-group__spacer"/>
-          <button
-            @click="newGroup"
-            class="query-builder-group__group-adding-button"
-          >
-            Add Group
-          </button>
+          <template v-if="! maxDepthExeeded">
+            <div class="query-builder-group__spacer"/>
+            <button
+              @click="newGroup"
+              class="query-builder-group__group-adding-button"
+            >
+              Add Group
+            </button>
+          </template>
         </div>
       </template>
     </div>

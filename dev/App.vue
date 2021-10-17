@@ -143,6 +143,7 @@ export default class App extends Vue {
         initialValue: 10,
       },
     ],
+    maxDepth: 2,
     colors: [
       'hsl(88, 50%, 55%)',
       'hsl(187, 100%, 45%)',

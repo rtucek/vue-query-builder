@@ -1,6 +1,6 @@
 <script lang="ts">
 import {
-  Component, Vue, Prop, Inject,
+  Component, Vue, Prop, Inject, Watch,
 } from 'vue-property-decorator';
 import Draggable, {
   ChangeEvent, Moved, Added, Removed,
@@ -31,6 +31,35 @@ export default class QueryBuilderGroup extends Vue implements QueryBuilderGroupI
   @Prop() readonly depth!: number
 
   @Inject() readonly getMergeTrap!: () => MergeTrap
+
+  @Watch('query')
+  watchQuery() {
+    this.pruneChildren();
+  }
+
+  @Watch('config.maxDepth')
+  watchMaxDepth() {
+    this.pruneChildren();
+  }
+
+  mounted() {
+    this.pruneChildren();
+  }
+
+  pruneChildren() {
+    if (this.children.length !== this.query.children.length) {
+      // We've more groups as children, then allowed by the max policy.
+      const children = [...this.children];
+
+      this.$emit(
+        'query-update',
+        {
+          operatorIdentifier: this.selectedOperator,
+          children,
+        } as RuleSet,
+      );
+    }
+  }
 
   get selectedOperator(): string {
     return this.query.operatorIdentifier;

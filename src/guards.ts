@@ -73,5 +73,11 @@ export function isQueryBuilderConfig(param: any): param is QueryBuilderConfig {
           && param.colors.every((color: any) => typeof color === 'string')
       )
     )
-    && (['undefined', 'number'].includes(typeof param.maxDepth));
+    && (
+      typeof param.maxDepth === 'undefined' // optional config value not present
+      || (
+        typeof param.maxDepth === 'number'
+          && param.maxDepth >= 0
+      )
+    );
 }

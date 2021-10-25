@@ -47,18 +47,20 @@ export default class QueryBuilderGroup extends Vue implements QueryBuilderGroupI
   }
 
   pruneChildren() {
-    if (this.children.length !== this.query.children.length) {
-      // We've more groups as children, then allowed by the max policy.
-      const children = [...this.children];
+    if (this.children.length === this.query.children.length) {
+      return;
+    }
 
-      this.$emit(
-        'query-update',
+    // We've more groups as children, then allowed by the max policy.
+    const children = [...this.children];
+
+    this.$emit(
+      'query-update',
         {
           operatorIdentifier: this.selectedOperator,
           children,
         } as RuleSet,
-      );
-    }
+    );
   }
 
   get selectedOperator(): string {

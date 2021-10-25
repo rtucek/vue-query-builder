@@ -5,7 +5,7 @@ import {
 import Draggable, {
   ChangeEvent, Moved, Added, Removed,
 } from 'vuedraggable';
-import { SortableOptions } from 'sortablejs';
+import Sortable, { SortableOptions, PutResult } from 'sortablejs';
 import {
   QueryBuilderConfig, RuleSet, Rule, OperatorDefinition, RuleDefinition,
   GroupOperatorSlotProps, GroupCtrlSlotProps, QueryBuilderGroup as QueryBuilderGroupInterface,
@@ -226,12 +226,35 @@ export default class QueryBuilderGroup extends Vue implements QueryBuilderGroupI
   }
 
   get dragOptions(): SortableOptions {
-    if (this.config.dragging) {
+    if (!this.config.dragging) {
+      // Sensitive default
+      return {
+        disabled: true,
+      };
+    }
+
+    if (!this.maxDepthExeeded) {
+      // Config as-it-is
       return this.config.dragging;
     }
 
+    // As a special case, honor max-group policy.
     return {
-      disabled: true,
+      ...this.config.dragging,
+      group: {
+        name: this.config.dragging.group as string,
+        put: (to: Sortable, from: Sortable, dragEl: HTMLElement): PutResult => {
+          // eslint-disable-next-line no-underscore-dangle
+          const vue = (dragEl as any)?.__vue__;
+
+          if (this.maxDepthExeeded && vue instanceof QueryBuilderChild && vue.isRuleSet) {
+            // Don't allow adding any group anymore
+            return false;
+          }
+
+          return true;
+        },
+      },
     };
   }
 

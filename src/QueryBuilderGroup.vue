@@ -172,12 +172,16 @@ export default class QueryBuilderGroup extends Vue implements QueryBuilderGroupI
     return `query-builder-group__group-children--depth-${this.childDepth}`;
   }
 
+  get hasMaxDepth(): boolean {
+    return typeof this.config.maxDepth === 'number';
+  }
+
   get maxDepthExeeded(): boolean {
-    if (typeof this.config.maxDepth !== 'number') {
+    if (!this.hasMaxDepth) {
       return false;
     }
 
-    return this.depth >= this.config.maxDepth;
+    return this.depth >= (this.config.maxDepth as number);
   }
 
   get borderColor(): string {
@@ -235,7 +239,7 @@ export default class QueryBuilderGroup extends Vue implements QueryBuilderGroupI
       };
     }
 
-    if (!this.maxDepthExeeded) {
+    if (!this.hasMaxDepth) {
       // Config as-it-is
       return this.config.dragging;
     }
@@ -247,17 +251,28 @@ export default class QueryBuilderGroup extends Vue implements QueryBuilderGroupI
         name: this.config.dragging.group as string,
         put: (to: Sortable, from: Sortable, dragEl: HTMLElement): PutResult => {
           // eslint-disable-next-line no-underscore-dangle
-          const vue = (dragEl as any)?.__vue__;
+          const dragged = ((dragEl as any)?.__vue__) as QueryBuilderChild;
+          // Calculate maximum depth of dragged element
+          const childDepth = this.calculateMaxDepth({ ...dragged.query }, 0);
 
-          if (this.maxDepthExeeded && vue instanceof QueryBuilderChild && vue.isRuleSet) {
-            // Don't allow adding any group anymore
-            return false;
-          }
-
-          return true;
+          // Check if dropping element would violate max-depth policy.
+          // If so, don't allow dropping.
+          return this.depth + childDepth <= (this.config.maxDepth as number);
         },
       },
     };
+  }
+
+  calculateMaxDepth(query: RuleSet | Rule, depthCnt: number): number {
+    if (isRule(query)) {
+      return depthCnt; // No nesting
+    }
+
+    return query.children
+      .reduce((cntPerChild, c) => Math.max(
+        cntPerChild,
+        this.calculateMaxDepth({ ...c }, depthCnt + 1),
+      ), depthCnt);
   }
 
   get showDragHandle(): boolean {

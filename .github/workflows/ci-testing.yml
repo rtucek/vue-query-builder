@@ -38,4 +38,9 @@ jobs:
         run: yarn install --frozen-lockfile
 
       - name: Unit Test
-        run: yarn run test:unit
+        run: yarn run test:unit --coverage --collectCoverageOnlyFrom ./src/**
+
+      - name: Report coverage
+        uses: vebr/jest-lcov-reporter@v0.2.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}

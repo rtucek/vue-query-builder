@@ -38,8 +38,4 @@ jobs:
         run: yarn install --frozen-lockfile
 
       - name: Unit Test
-        uses: mattallty/jest-github-action@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          test-command: "yarn run test:unit"
+        run: yarn run test:unit

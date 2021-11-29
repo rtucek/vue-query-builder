@@ -161,14 +161,14 @@ describe('Testing max-depth behaviour', () => {
     const group1 = (
         groups.filter(g => g.vm.$props.depth === 1)
           .shift()
-      ) as Wrapper<QueryBuilder, Element>;
+      ) as Wrapper<QueryBuilderGroupInstance, Element>;
     expect((group1.vm as QueryBuilderGroupInstance).maxDepthExeeded).toBeFalsy();
     expect(group1.find('.query-builder-group__group-adding-button').exists()).toBeTruthy();
 
     const group4 = (
         groups.filter(g => g.vm.$props.depth === 4)
           .shift()
-      ) as Wrapper<QueryBuilder, Element>;
+      ) as Wrapper<QueryBuilderGroupInstance, Element>;
     expect((group4.vm as QueryBuilderGroupInstance).maxDepthExeeded).toBeTruthy();
     expect(group4.find('.query-builder-group__group-adding-button').exists()).toBeFalsy();
   });
@@ -218,7 +218,7 @@ function buildDragEl(r: Rule | RuleSet, config: QueryBuilderConfig): HTMLElement
 }
 
 function buildDragOptions(ws: Array<Wrapper<Vue, Element>>): DragOptionsInterface {
-  const w = ws.shift() as Wrapper<QueryBuilder, Element>;
+  const w = ws.shift() as Wrapper<Vue, Element>;
   const qbgi = w.vm as QueryBuilderGroupInstance;
 
   return (qbgi.dragOptions as DragOptionsInterface);

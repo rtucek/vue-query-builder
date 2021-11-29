@@ -15,12 +15,12 @@ interface QueryBuilderGroupInstance extends Vue {
   dragOptions: SortableOptions,
 }
 
-interface GroupOptionsInterface extends GroupOptions {
+interface GroupOptionsInstance extends GroupOptions {
   put: ((to: Sortable, from: Sortable, dragEl: HTMLElement, event: SortableEvent) => PutResult)
 }
 
-interface DragOptionsInterface extends SortableOptions {
-  group: GroupOptionsInterface,
+interface DragOptionsInstance extends SortableOptions {
+  group: GroupOptionsInstance,
 }
 
 describe('Testing max-depth behaviour', () => {
@@ -252,9 +252,9 @@ function buildDragEl(r: Rule | RuleSet, config: QueryBuilderConfig): HTMLElement
   return rEl as HTMLElement;
 }
 
-function buildDragOptions(ws: Array<Wrapper<Vue, Element>>): DragOptionsInterface {
+function buildDragOptions(ws: Array<Wrapper<Vue, Element>>): DragOptionsInstance {
   const w = ws.shift() as Wrapper<Vue, Element>;
   const qbgi = w.vm as QueryBuilderGroupInstance;
 
-  return (qbgi.dragOptions as DragOptionsInterface);
+  return (qbgi.dragOptions as DragOptionsInstance);
 }

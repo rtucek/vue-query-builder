@@ -6,13 +6,16 @@ import Sortable, {
 import QueryBuilder from '@/QueryBuilder.vue';
 import QueryBuilderGroup from '@/QueryBuilderGroup.vue';
 import QueryBuilderChild from '@/QueryBuilderChild.vue';
-import { RuleSet, QueryBuilderConfig, Rule } from '@/types';
+import {
+  RuleSet, QueryBuilderConfig, Rule, GroupCtrlSlotProps,
+} from '@/types';
 import Component from '../components/Component.vue';
 
 interface QueryBuilderGroupInstance extends Vue {
   depth: number,
   maxDepthExeeded: boolean,
   dragOptions: SortableOptions,
+  groupControlSlotProps: GroupCtrlSlotProps,
 }
 
 interface GroupOptionsInstance extends GroupOptions {
@@ -145,6 +148,72 @@ describe('Testing max-depth behaviour', () => {
       .shift() as Wrapper<QueryBuilderGroupInstance, Element>;
     // Assert button is absent
     button = group.find('.query-builder-group__group-adding-button');
+    expect(button.exists()).toBeFalsy();
+    evQueryUpdate = app.emitted('input');
+    expect(evQueryUpdate).toBeUndefined();
+  });
+
+  it('verifies the behaviour of GroupCtrlSlotProps slot', () => {
+    const createApp = () => mount(QueryBuilder, {
+      propsData: {
+        value: { ...value },
+        config: { ...config },
+      },
+      scopedSlots: {
+        groupControl: `
+          <div
+            slot-scope="props"
+            class="slot-wrapper"
+          >
+            SLOT
+            <select>
+              <option
+                v-for="rule in props.rules"
+                :key="rule.identifier"
+                :value="rule.identifier"
+                v-text="rule.name"
+              />
+            </select>
+            <button
+              @click="props.addRule('txt')"
+              class="slot-new-rule"
+            >
+              Add Rule
+            </button>
+            <button
+              v-if="! props.maxDepthExeeded"
+              @click="props.newGroup"
+              class="slot-new-group"
+            >
+              Add Group
+            </button>
+          </div>
+        `,
+      },
+    });
+
+    let app = createApp();
+    let group = app.findAllComponents(QueryBuilderGroup)
+      .wrappers
+      .filter(g => g.vm.$props.depth === 3)
+      .shift() as Wrapper<QueryBuilderGroupInstance, Element>;
+    expect(group.vm.groupControlSlotProps.maxDepthExeeded).toBeFalsy();
+    // Assert button is present
+    let button = group.find('.slot-new-group');
+    expect(button.exists()).toBeTruthy();
+    button.trigger('click');
+    let evQueryUpdate = app.emitted('input');
+    expect(evQueryUpdate).toHaveLength(1);
+
+    // Test leaf group
+    app = createApp();
+    group = app.findAllComponents(QueryBuilderGroup)
+      .wrappers
+      .filter(g => g.vm.$props.depth === 4)
+      .shift() as Wrapper<QueryBuilderGroupInstance, Element>;
+    expect(group.vm.groupControlSlotProps.maxDepthExeeded).toBeTruthy();
+    // Assert button is absent
+    button = group.find('.slot-new-group');
     expect(button.exists()).toBeFalsy();
     evQueryUpdate = app.emitted('input');
     expect(evQueryUpdate).toBeUndefined();

@@ -10,6 +10,7 @@ import { RuleSet, QueryBuilderConfig, Rule } from '@/types';
 import Component from '../components/Component.vue';
 
 interface QueryBuilderGroupInstance extends Vue {
+  depth: number,
   maxDepthExeeded: boolean,
   dragOptions: SortableOptions,
 }
@@ -114,6 +115,40 @@ describe('Testing max-depth behaviour', () => {
     },
     maxDepth: 4,
   };
+
+  it('verifies not groups are added upon max-depth', () => {
+    const createApp = () => mount(QueryBuilder, {
+      propsData: {
+        value: { ...value },
+        config: { ...config },
+      },
+    });
+
+    // Test non-leave group
+    let app = createApp();
+    let group = app.findAllComponents(QueryBuilderGroup)
+      .wrappers
+      .filter(g => g.vm.$props.depth === 3)
+      .shift() as Wrapper<QueryBuilderGroupInstance, Element>;
+    // Assert button is present
+    let button = group.find('.query-builder-group__group-adding-button');
+    expect(button.exists()).toBeTruthy();
+    button.trigger('click');
+    let evQueryUpdate = app.emitted('input');
+    expect(evQueryUpdate).toHaveLength(1);
+
+    // Test "leaf" group
+    app = createApp();
+    group = app.findAllComponents(QueryBuilderGroup)
+      .wrappers
+      .filter(g => g.vm.$props.depth === 4)
+      .shift() as Wrapper<QueryBuilderGroupInstance, Element>;
+    // Assert button is absent
+    button = group.find('.query-builder-group__group-adding-button');
+    expect(button.exists()).toBeFalsy();
+    evQueryUpdate = app.emitted('input');
+    expect(evQueryUpdate).toBeUndefined();
+  });
 
   it('prunes existing branches which are beyond the max-depth setting', async () => {
     const app = mount(QueryBuilder, {

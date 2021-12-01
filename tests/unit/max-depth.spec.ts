@@ -326,4 +326,44 @@ describe('Testing max-depth behaviour', () => {
     expect(dragOptions1.group.put(s, s, buildDragEl(movingRuleSet, config), se)).toBeTruthy();
     expect(dragOptions2.group.put(s, s, buildDragEl(movingRuleSet, config), se)).toBeFalsy();
   });
+
+  it('checks and verifies GroupCtrlSlot\'s props behaviour', async () => {
+    const newRuleSet = (): RuleSet => ({
+      operatorIdentifier: 'AND',
+      children: [],
+    });
+
+    const getMergeTrap = jest.fn();
+
+    const app = shallowMount(QueryBuilderGroup, {
+      propsData: {
+        config: { ...config },
+        query: newRuleSet(),
+        depth: 4,
+      },
+      provide: {
+        getMergeTrap,
+      },
+    }) as Wrapper<QueryBuilderGroupInterface>;
+
+    const slotPropsLeafGroup = app.vm.groupControlSlotProps;
+    expect(slotPropsLeafGroup.maxDepthExeeded).toBeTruthy();
+    slotPropsLeafGroup.newGroup();
+    expect(app.emitted('query-update')).toBeUndefined();
+
+    // Now try adding another by stepping down 1 depth
+    app.setProps({
+      config: { ...config },
+      query: newRuleSet(),
+      depth: 3,
+    });
+    await app.vm.$nextTick();
+
+    const slotPropsNonLeafGroup = app.vm.groupControlSlotProps;
+    expect(slotPropsNonLeafGroup.maxDepthExeeded).toBeFalsy();
+    slotPropsNonLeafGroup.newGroup();
+    expect(app.emitted('query-update')).toHaveLength(1);
+
+    expect(getMergeTrap).not.toBeCalled();
+  });
 });

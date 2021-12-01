@@ -11,19 +11,19 @@ import {
 } from '@/types';
 import Component from '../components/Component.vue';
 
-interface QueryBuilderGroupInstance extends Vue {
+interface QueryBuilderGroupInterface extends Vue {
   depth: number,
   maxDepthExeeded: boolean,
   dragOptions: SortableOptions,
   groupControlSlotProps: GroupCtrlSlotProps,
 }
 
-interface GroupOptionsInstance extends GroupOptions {
+interface GroupOptionsInterface extends GroupOptions {
   put: ((to: Sortable, from: Sortable, dragEl: HTMLElement, event: SortableEvent) => PutResult)
 }
 
 interface DragOptionsInstance extends SortableOptions {
-  group: GroupOptionsInstance,
+  group: GroupOptionsInterface,
 }
 
 describe('Testing max-depth behaviour', () => {
@@ -132,7 +132,7 @@ describe('Testing max-depth behaviour', () => {
     let group = app.findAllComponents(QueryBuilderGroup)
       .wrappers
       .filter(g => g.vm.$props.depth === 3)
-      .shift() as Wrapper<QueryBuilderGroupInstance, Element>;
+      .shift() as Wrapper<QueryBuilderGroupInterface, Element>;
     // Assert button is present
     let button = group.find('.query-builder-group__group-adding-button');
     expect(button.exists()).toBeTruthy();
@@ -145,7 +145,7 @@ describe('Testing max-depth behaviour', () => {
     group = app.findAllComponents(QueryBuilderGroup)
       .wrappers
       .filter(g => g.vm.$props.depth === 4)
-      .shift() as Wrapper<QueryBuilderGroupInstance, Element>;
+      .shift() as Wrapper<QueryBuilderGroupInterface, Element>;
     // Assert button is absent
     button = group.find('.query-builder-group__group-adding-button');
     expect(button.exists()).toBeFalsy();
@@ -196,7 +196,7 @@ describe('Testing max-depth behaviour', () => {
     let group = app.findAllComponents(QueryBuilderGroup)
       .wrappers
       .filter(g => g.vm.$props.depth === 3)
-      .shift() as Wrapper<QueryBuilderGroupInstance, Element>;
+      .shift() as Wrapper<QueryBuilderGroupInterface, Element>;
     expect(group.vm.groupControlSlotProps.maxDepthExeeded).toBeFalsy();
     // Assert button is present
     let button = group.find('.slot-new-group');
@@ -210,7 +210,7 @@ describe('Testing max-depth behaviour', () => {
     group = app.findAllComponents(QueryBuilderGroup)
       .wrappers
       .filter(g => g.vm.$props.depth === 4)
-      .shift() as Wrapper<QueryBuilderGroupInstance, Element>;
+      .shift() as Wrapper<QueryBuilderGroupInterface, Element>;
     expect(group.vm.groupControlSlotProps.maxDepthExeeded).toBeTruthy();
     // Assert button is absent
     button = group.find('.slot-new-group');
@@ -265,19 +265,41 @@ describe('Testing max-depth behaviour', () => {
     const group1 = (
         groups.filter(g => g.vm.$props.depth === 1)
           .shift()
-      ) as Wrapper<QueryBuilderGroupInstance, Element>;
-    expect((group1.vm as QueryBuilderGroupInstance).maxDepthExeeded).toBeFalsy();
+      ) as Wrapper<QueryBuilderGroupInterface, Element>;
+    expect((group1.vm as QueryBuilderGroupInterface).maxDepthExeeded).toBeFalsy();
     expect(group1.find('.query-builder-group__group-adding-button').exists()).toBeTruthy();
 
     const group4 = (
         groups.filter(g => g.vm.$props.depth === 4)
           .shift()
-      ) as Wrapper<QueryBuilderGroupInstance, Element>;
-    expect((group4.vm as QueryBuilderGroupInstance).maxDepthExeeded).toBeTruthy();
+      ) as Wrapper<QueryBuilderGroupInterface, Element>;
+    expect((group4.vm as QueryBuilderGroupInterface).maxDepthExeeded).toBeTruthy();
     expect(group4.find('.query-builder-group__group-adding-button').exists()).toBeFalsy();
   });
 
   it('checks and rejects movements, violating the max depth policy', () => {
+    const buildDragEl = (r: Rule | RuleSet, c: QueryBuilderConfig): HTMLElement => {
+      const rChild = shallowMount(QueryBuilderChild, {
+        propsData: {
+          query: { ...r },
+          config: { ...c },
+        },
+      });
+
+      const rEl = {
+        __vue__: rChild.vm,
+      } as unknown;
+
+      return rEl as HTMLElement;
+    };
+
+    const buildDragOptions = (ws: Array<Wrapper<Vue, Element>>): DragOptionsInstance => {
+      const w = ws.shift() as Wrapper<Vue, Element>;
+      const qbgi = w.vm as QueryBuilderGroupInterface;
+
+      return (qbgi.dragOptions as DragOptionsInstance);
+    };
+
     const app = mount(QueryBuilder, {
       propsData: {
         value: { ...value },
@@ -305,25 +327,3 @@ describe('Testing max-depth behaviour', () => {
     expect(dragOptions2.group.put(s, s, buildDragEl(movingRuleSet, config), se)).toBeFalsy();
   });
 });
-
-function buildDragEl(r: Rule | RuleSet, config: QueryBuilderConfig): HTMLElement {
-  const rChild = shallowMount(QueryBuilderChild, {
-    propsData: {
-      query: { ...r },
-      config: { ...config },
-    },
-  });
-
-  const rEl = {
-    __vue__: rChild.vm,
-  } as unknown;
-
-  return rEl as HTMLElement;
-}
-
-function buildDragOptions(ws: Array<Wrapper<Vue, Element>>): DragOptionsInstance {
-  const w = ws.shift() as Wrapper<Vue, Element>;
-  const qbgi = w.vm as QueryBuilderGroupInstance;
-
-  return (qbgi.dragOptions as DragOptionsInstance);
-}

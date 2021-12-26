@@ -1,4 +1,4 @@
-import Vue, { Component } from 'vue';
+import { Component } from 'vue';
 import { SortableOptions } from 'sortablejs';
 
 export interface Rule {
@@ -26,6 +26,7 @@ export interface RuleDefinition {
 export interface QueryBuilderConfig {
   operators: OperatorDefinition[],
   rules: RuleDefinition[],
+  maxDepth?: number,
   colors?: string[],
   dragging?: SortableOptions,
 }
@@ -37,6 +38,7 @@ export interface GroupOperatorSlotProps {
 }
 
 export interface GroupCtrlSlotProps {
+  maxDepthExeeded: boolean,
   rules: RuleDefinition[],
   addRule: (newRule: string) => void,
   newGroup: () => void,

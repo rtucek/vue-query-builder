@@ -1,10 +1,82 @@
 <template>
-  <div id="app">
+  <div class="container">
+    <div class="container-config">
+      <div class="container-config-item" >
+        <label for="ctrlEnableDragNDrop">
+          Allow Drag'n'drop
+        </label>
+        <input
+          type="checkbox"
+          v-model="ctrlEnableDragNDrop"
+          id="ctrlEnableDragNDrop"
+        >
+      </div>
+      <div class="container-config-item config-max-depth">
+        <div>
+          <label for="ctrlEnableMaxDepth">
+            Enable max depth
+          </label>
+          <input
+            type="checkbox"
+            v-model="ctrlEnableMaxDepth"
+            id="ctrlEnableMaxDepth"
+          >
+        </div>
+        <div>
+          <label for="ctrlMaxDepth">
+            Max Depth:
+          </label>
+          <input
+            v-model.number="ctrlMaxDepth"
+            type="number"
+            min="0"
+            :disabled="! ctrlEnableMaxDepth"
+            id="ctrlMaxDepth"
+          >
+        </div>
+      </div>
+      <div class="container-config-item config-slots">
+        <div>
+          <label for="ctrlEnableGroupOperatorSlot">
+            Enable Group Operator Slot
+          </label>
+          <input
+            type="checkbox"
+            v-model="ctrlEnableGroupOperatorSlot"
+            id="ctrlEnableGroupOperatorSlot"
+          >
+        </div>
+        <div>
+          <label for="ctrlEnableGroupControlSlot">
+            Enable Group Control Slot
+          </label>
+          <input
+            type="checkbox"
+            v-model="ctrlEnableGroupControlSlot"
+            id="ctrlEnableGroupControlSlot"
+          >
+        </div>
+        <div>
+          <label for="ctrlEnableRuleSlot">
+            Enable Rule Slot
+          </label>
+          <input
+            type="checkbox"
+            v-model="ctrlEnableRuleSlot"
+            id="ctrlEnableRuleSlot"
+          >
+        </div>
+      </div>
+    </div>
     <query-builder
-      :config="config"
+      :config="getConfig"
       v-model="query"
+      class ="query-builder"
     >
-      <template #groupOperator="props">
+      <template
+        v-if="ctrlEnableGroupOperatorSlot"
+        #groupOperator="props"
+      >
         <div class="query-builder-group-slot__group-selection">
           <span class="query-builder-group-slot__group-operator">SLOT #groupOperator</span>
           <select
@@ -22,11 +94,17 @@
         </div>
       </template>
 
-      <template #groupControl="props">
+      <template
+        v-if="ctrlEnableGroupControlSlot"
+        #groupControl="props"
+      >
         <group-ctrl-slot :group-ctrl="props"/>
       </template>
 
-      <template #rule="props">
+      <template
+        v-if="ctrlEnableRuleSlot"
+        #rule="props"
+      >
         <rule-slot :ruleCtrl="props"/>
       </template>
     </query-builder>
@@ -52,9 +130,25 @@ import RuleSlot from './RuleSlot.vue';
   },
 })
 export default class App extends Vue {
+ctrlEnableDragNDrop: boolean = true;
+
+  ctrlEnableMaxDepth: boolean = false;
+
+  ctrlMaxDepth: number = 3;
+
+  ctrlEnableGroupOperatorSlot: boolean = true;
+
+  ctrlEnableGroupControlSlot: boolean = true;
+
+  ctrlEnableRuleSlot: boolean = true;
+
   query: RuleSet | null = {
     operatorIdentifier: 'OR',
     children: [
+      {
+        identifier: 'txt',
+        value: 'A',
+      },
       {
         operatorIdentifier: 'AND',
         children: [
@@ -143,6 +237,7 @@ export default class App extends Vue {
         initialValue: 10,
       },
     ],
+    maxDepth: undefined,
     colors: [
       'hsl(88, 50%, 55%)',
       'hsl(187, 100%, 45%)',
@@ -153,6 +248,22 @@ export default class App extends Vue {
       disabled: false,
       ghostClass: 'ghost',
     },
+  }
+
+  get getConfig(): QueryBuilderConfig {
+    const config: QueryBuilderConfig = { ...this.config };
+
+    if (!config.dragging) {
+      config.dragging = {};
+    }
+    config.dragging.disabled = !this.ctrlEnableDragNDrop;
+
+    config.maxDepth = Math.abs(this.ctrlMaxDepth || 0);
+    if (!this.ctrlEnableMaxDepth) {
+      config.maxDepth = undefined;
+    }
+
+    return config;
   }
 }
 </script>
@@ -167,9 +278,30 @@ body {
   font-size: 16px;
 }
 
-#app {
-  margin: 30px auto;
+.container {
   width: 90%;
+  margin: 30px auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.container-config {
+  border: 1px solid hsl(0, 0%, 75%);
+  margin-bottom: 30px;
+  padding: 10px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+// .container-config-item {
+//
+// }
+
+.config-max-depth #ctrlMaxDepth {
+  width: 70px;
+}
+
+.query-builder {
   border: 1px solid hsl(0, 0%, 75%);
 }
 

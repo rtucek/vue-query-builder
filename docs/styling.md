@@ -23,7 +23,7 @@ Often, you'll have to use `v-bind:value` and `v-on:input` instead.
 The `groupOperator` slot may be used for changing the markup of a group's operator.
 
 The slot receives an object with the shape of the [GroupOperatorSlotProps
-object](https://github.com/rtucek/vue-query-builder/blob/master/types/index.d.ts#L33).
+object](https://github.com/rtucek/vue-query-builder/blob/master/types/index.d.ts#L34).
 
 ```vue
 <template>
@@ -73,7 +73,7 @@ object](https://github.com/rtucek/vue-query-builder/blob/master/types/index.d.ts
 The `groupControl` slot allows for creating a new group or adding a new rule.
 
 The slot receives an object with the shape of the [GroupCtrlSlotProps
-object](https://github.com/rtucek/vue-query-builder/blob/master/types/index.d.ts#L39).
+object](https://github.com/rtucek/vue-query-builder/blob/master/types/index.d.ts#L40).
 
 <iframe
   src="https://codesandbox.io/embed/groupcontrol-slot-8thx1?fontsize=14&hidenavigation=1&module=%2Fsrc%2FApp.vue&theme=dark"
@@ -89,7 +89,7 @@ object](https://github.com/rtucek/vue-query-builder/blob/master/types/index.d.ts
 The `rule` slot allows for customizing markup around each rule component.
 
 The slot receives an object with the shape of the [RuleSlotProps
-object](https://github.com/rtucek/vue-query-builder/blob/master/types/index.d.ts#L45).
+object](https://github.com/rtucek/vue-query-builder/blob/master/types/index.d.ts#L47).
 
 You'll have to use Vue's [Dynamic
 Component](https://vuejs.org/v2/guide/components.html#Dynamic-Components) feature for displaying the

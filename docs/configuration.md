@@ -155,10 +155,10 @@ Vue.component('NumberSelection', {
 
 ## Colors
 
-A complex, deep nested query can quickly become confusing. In order to keep an overview, nested
+A complex, deep nested query, can quickly become confusing. In order to keep an overview, nested
 groups may be emphasized with colorful hints.
 
-The colors property should be a string array with a minimum length of at least 2, containing any
+The `colors` property should be a string array with a minimum length of at least 2, containing any
 valid CSS color definition.
 
 
@@ -222,3 +222,37 @@ for allowing nested dragging.
   allow="geolocation; microphone; camera; midi; vr; accelerometer; gyroscope; payment; ambient-light-sensor; encrypted-media; usb"
   sandbox="allow-modals allow-forms allow-popups allow-scripts allow-same-origin"
 ></iframe>
+
+
+## Max-Depth
+
+If `typeof maxDepth === 'undefined'`, users may have an arbitrary depth of nested groups.
+
+For `typeof maxDepth === 'number' and 0 <= n <= maxDepth`, users are only allowed to create up to n
+nested groups. If n is 0, users are effectively not allowed to create any groups at all.
+
+
+### Runtime change
+
+It is possible and valid to change `maxDepth` at runtime.
+As a special chase, if the given query has a higher nested depth and a config change restricts the
+`maxDepth` to a lower depth, the library (intentionally) removes any child groups, exceeding the
+present config limit. This ensures consistency with the `maxDepth` policy. It's the component user's
+responsibility of checking if setting `maxDepth` may not result in an unwanted side-effect of
+removing any child-groups from the given query tree.
+
+
+### Usage of Sortable
+
+If drag'n'drop is activated via [Sortable](#sortable) config:
+Prior dropping a dragged group into another group, the library checks if the max depth policy would
+be violated and prevents dropping. The user will notice that the drag'n'drop preview will not adjust
+as usually expected.
+
+
+### Usage of groupCtrlSlotProps
+
+For the slot of type [`groupCtrlSlotProps`](styling.html#groupcontrol-slot), the `newGroup()`
+callback, passed as slot prop, becomes a noop, if a group has exceeded the `maxDepth` policy.
+Additionally, a boolean flag with a `maxDepthExeeded` property is provided to the slot prop object,
+so the slot can check and hide a create-new-group handler.

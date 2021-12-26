@@ -1,16 +1,16 @@
 <script lang="ts">
 import {
-  Component, Vue, Prop, Inject,
+  Component, Vue, Prop, Inject, Watch,
 } from 'vue-property-decorator';
 import Draggable, {
   ChangeEvent, Moved, Added, Removed,
 } from 'vuedraggable';
-import { SortableOptions } from 'sortablejs';
+import Sortable, { SortableOptions, PutResult } from 'sortablejs';
 import {
   QueryBuilderConfig, RuleSet, Rule, OperatorDefinition, RuleDefinition,
   GroupOperatorSlotProps, GroupCtrlSlotProps, QueryBuilderGroup as QueryBuilderGroupInterface,
 } from '@/types';
-import { isQueryBuilderConfig } from '@/guards';
+import { isQueryBuilderConfig, isRule } from '@/guards';
 import MergeTrap from '@/MergeTrap';
 import QueryBuilderChild from './QueryBuilderChild.vue';
 
@@ -32,6 +32,37 @@ export default class QueryBuilderGroup extends Vue implements QueryBuilderGroupI
 
   @Inject() readonly getMergeTrap!: () => MergeTrap
 
+  @Watch('query')
+  watchQuery() {
+    this.pruneChildren();
+  }
+
+  @Watch('config.maxDepth')
+  watchMaxDepth() {
+    this.pruneChildren();
+  }
+
+  mounted() {
+    this.pruneChildren();
+  }
+
+  pruneChildren() {
+    if (this.children.length === this.query.children.length) {
+      return;
+    }
+
+    // We've more groups as children, then allowed by the max policy.
+    const children = [...this.children];
+
+    this.$emit(
+      'query-update',
+        {
+          operatorIdentifier: this.selectedOperator,
+          children,
+        } as RuleSet,
+    );
+  }
+
   get selectedOperator(): string {
     return this.query.operatorIdentifier;
   }
@@ -51,6 +82,11 @@ export default class QueryBuilderGroup extends Vue implements QueryBuilderGroupI
   selectedRule: string = ''
 
   get children(): Array<RuleSet | Rule> {
+    if (this.maxDepthExeeded) {
+      // filter children exclusively
+      return [...this.query.children].filter(isRule);
+    }
+
     return [...this.query.children];
   }
 
@@ -136,6 +172,18 @@ export default class QueryBuilderGroup extends Vue implements QueryBuilderGroupI
     return `query-builder-group__group-children--depth-${this.childDepth}`;
   }
 
+  get hasMaxDepth(): boolean {
+    return typeof this.config.maxDepth === 'number';
+  }
+
+  get maxDepthExeeded(): boolean {
+    if (!this.hasMaxDepth) {
+      return false;
+    }
+
+    return this.depth >= (this.config.maxDepth as number);
+  }
+
   get borderColor(): string {
     if (this.config.colors && this.config.colors.length > 0) {
       return this.config.colors[this.depth % this.config.colors.length];
@@ -171,6 +219,7 @@ export default class QueryBuilderGroup extends Vue implements QueryBuilderGroupI
 
   get groupControlSlotProps(): GroupCtrlSlotProps {
     return {
+      maxDepthExeeded: this.maxDepthExeeded,
       rules: this.rules,
       addRule: (newRule: string) => {
         const currentRule = this.selectedRule;
@@ -183,13 +232,47 @@ export default class QueryBuilderGroup extends Vue implements QueryBuilderGroupI
   }
 
   get dragOptions(): SortableOptions {
-    if (this.config.dragging) {
+    if (!this.config.dragging) {
+      // Sensitive default
+      return {
+        disabled: true,
+      };
+    }
+
+    if (!this.hasMaxDepth) {
+      // Config as-it-is
       return this.config.dragging;
     }
 
+    // As a special case, honor max-group policy.
     return {
-      disabled: true,
+      ...this.config.dragging,
+      group: {
+        name: this.config.dragging.group as string,
+        put: (to: Sortable, from: Sortable, dragEl: HTMLElement): PutResult => {
+          // eslint-disable-next-line no-underscore-dangle
+          const dragged = ((dragEl as any)?.__vue__) as QueryBuilderChild;
+          // Calculate maximum depth of dragged element
+          const childDepth = this.calculateMaxDepth({ ...dragged.query }, 0);
+
+          // Check if dropping element would violate max-depth policy.
+          // If so, don't allow dropping.
+          return this.depth + childDepth <= (this.config.maxDepth as number);
+        },
+      },
     };
+  }
+
+  calculateMaxDepth(query: RuleSet | Rule, depthCnt: number): number {
+    if (isRule(query)) {
+      return depthCnt; // No nesting
+    }
+
+    return query.children
+      .reduce((cntPerChild, c) => Math.max(
+        cntPerChild,
+        this.calculateMaxDepth({ ...c }, depthCnt + 1),
+      ), depthCnt);
   }
 
   get showDragHandle(): boolean {
@@ -236,6 +319,11 @@ export default class QueryBuilderGroup extends Vue implements QueryBuilderGroupI
   }
 
   newGroup(): void {
+    if (this.maxDepthExeeded) {
+      // noop, as max depth reached
+      return;
+    }
+
     const children = [...this.children];
     children.push({
       operatorIdentifier: this.config.operators[0].identifier,
@@ -346,13 +434,15 @@ export default class QueryBuilderGroup extends Vue implements QueryBuilderGroupI
           >
             Add Rule
           </button>
-          <div class="query-builder-group__spacer"/>
-          <button
-            @click="newGroup"
-            class="query-builder-group__group-adding-button"
-          >
-            Add Group
-          </button>
+          <template v-if="! maxDepthExeeded">
+            <div class="query-builder-group__spacer"/>
+            <button
+              @click="newGroup"
+              class="query-builder-group__group-adding-button"
+            >
+              Add Group
+            </button>
+          </template>
         </div>
       </template>
     </div>

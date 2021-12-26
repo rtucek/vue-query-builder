@@ -256,3 +256,10 @@ For the slot of type [`groupCtrlSlotProps`](styling.html#groupcontrol-slot), the
 callback, passed as slot prop, becomes a noop, if a group has exceeded the `maxDepth` policy.
 Additionally, a boolean flag with a `maxDepthExeeded` property is provided to the slot prop object,
 so the slot can check and hide a create-new-group handler.
+
+<iframe src="https://codesandbox.io/embed/config-max-depth-i6zbh?fontsize=12&hidenavigation=1&module=%2Fsrc%2FApp.vue&theme=dark&view=preview"
+     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+     title="Config: Max-Depth"
+     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+></iframe>

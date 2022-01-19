@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import {
+  QueryBuilderGroupSym,
   RuleSet, QueryBuilderGroup, ComponentRegistration, MergeTrap as MergeTrapInterface, Rule,
 } from '@/types';
 
@@ -12,7 +13,7 @@ function getNextGroup(group: QueryBuilderGroup): QueryBuilderGroup {
 
   do {
     vm = vm.$parent;
-  } while (vm.$options.name !== 'QueryBuilderGroup');
+  } while ((vm as QueryBuilderGroup).type !== QueryBuilderGroupSym);
 
   return vm as QueryBuilderGroup;
 }

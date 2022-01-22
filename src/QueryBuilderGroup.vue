@@ -7,7 +7,7 @@ import Draggable, {
 } from 'vuedraggable';
 import Sortable, { SortableOptions, PutResult } from 'sortablejs';
 import {
-  QueryBuilderConfig, RuleSet, Rule, OperatorDefinition, RuleDefinition,
+  QueryBuilderConfig, RuleSet, Rule, OperatorDefinition, RuleDefinition, QueryBuilderGroupSym,
   GroupOperatorSlotProps, GroupCtrlSlotProps, QueryBuilderGroup as QueryBuilderGroupInterface,
 } from '@/types';
 import { isQueryBuilderConfig, isRule } from '@/guards';
@@ -79,7 +79,9 @@ export default class QueryBuilderGroup extends Vue implements QueryBuilderGroupI
 
   trap: ((position: number, newChild: RuleSet | Rule) => void) | null = null;
 
-  selectedRule: string = ''
+  selectedRule: string = '';
+
+  type: Symbol = QueryBuilderGroupSym;
 
   get children(): Array<RuleSet | Rule> {
     if (this.maxDepthExeeded) {

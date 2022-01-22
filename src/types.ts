@@ -50,11 +50,14 @@ export interface RuleSlotProps {
   updateRuleData: (newData: any) => void,
 }
 
+export const QueryBuilderGroupSym = Symbol('QueryBuilderGroup');
+
 export interface QueryBuilderGroup extends Vue {
   selectedOperator: string,
   depth: number,
   trap: ((position: number, newChild: RuleSet | Rule) => void) | null,
   children: Array<RuleSet | Rule>,
+  type: Symbol,
 }
 
 export interface ComponentRegistration {

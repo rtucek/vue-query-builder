@@ -43,6 +43,7 @@ export default class QueryBuilderRule extends Vue {
     return {
       ruleComponent: this.component,
       ruleData: this.query.value,
+      ruleIdentifier: this.query.identifier,
       updateRuleData: (ruleData: any) => this.ruleUpdate(ruleData),
     };
   }

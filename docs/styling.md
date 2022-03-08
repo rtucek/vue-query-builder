@@ -90,6 +90,7 @@ The `rule` slot allows for customizing markup around each rule component.
 
 The slot receives an object with the shape of the [RuleSlotProps
 object](https://github.com/rtucek/vue-query-builder/blob/master/types/index.d.ts#L47).
+An exact ruel can be identified based on the `ruleCtrl.ruleIdentifier` for dynamic content.
 
 You'll have to use Vue's [Dynamic
 Component](https://vuejs.org/v2/guide/components.html#Dynamic-Components) feature for displaying the

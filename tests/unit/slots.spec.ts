@@ -182,6 +182,7 @@ describe('Testing slot related features', () => {
             <component
               :is="props.ruleComponent"
               :value="props.ruleData"
+              :identifier="props.ruleIdentifier"
               @input="props.updateRuleData"
               class="slot-rule"
             />
@@ -197,7 +198,8 @@ describe('Testing slot related features', () => {
     // Verify rule slot is properly rendered
     expect(ruleComponent.is(Component)).toBeTruthy();
     expect(ruleComponent.vm.$props.value).toBe('A');
-    expect(ruleComponent.vm.$props.ruleIdentifier).toBe('txt');
+    expect(rule.vm.$props.query.identifier).toBe('txt');
+    expect(ruleComponent.vm.$props.identifier).toBe('txt');
     ruleComponent.vm.$emit('input', 'a');
     expect((rule.emitted('query-update') as any)[0][0]).toStrictEqual({ identifier: 'txt', value: 'a' });
 

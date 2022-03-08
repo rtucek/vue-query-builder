@@ -6,6 +6,10 @@ export default class Input extends Vue {
   @Prop({
     default: null,
   }) readonly value!: any;
+
+  @Prop({
+    default: null,
+  }) readonly identifier!: any;
 }
 </script>
 

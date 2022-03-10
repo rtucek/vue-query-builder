@@ -9,7 +9,7 @@ export default class Input extends Vue {
 
   @Prop({
     default: null,
-  }) readonly identifier!: any;
+  }) readonly identifier!: string;
 }
 </script>
 

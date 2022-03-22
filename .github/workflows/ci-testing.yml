@@ -39,9 +39,3 @@ jobs:
 
       - name: Unit Test
         run: yarn run test:unit --coverage --collectCoverageOnlyFrom ./src/**
-
-      - name: Report coverage
-        uses: vebr/jest-lcov-reporter@v0.2.1
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          update-comment: true

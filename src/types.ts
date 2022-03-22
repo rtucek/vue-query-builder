@@ -47,6 +47,7 @@ export interface GroupCtrlSlotProps {
 export interface RuleSlotProps {
   ruleComponent: Component | string,
   ruleData: any,
+  ruleIdentifier: string,
   updateRuleData: (newData: any) => void,
 }
 

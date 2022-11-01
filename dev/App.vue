@@ -111,8 +111,8 @@
   </div>
 </template>
 
-<script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
+<script lang="ts" setup>
+import { computed, markRaw, ref, reactive } from 'vue';
 
 import QueryBuilder from '@/QueryBuilder.vue';
 import { RuleSet, QueryBuilderConfig } from '@/types';
@@ -122,150 +122,142 @@ import NumberSelection from './Number.vue';
 import GroupCtrlSlot from './GroupCtrlSlot.vue';
 import RuleSlot from './RuleSlot.vue';
 
-@Component({
-  components: {
-    QueryBuilder,
-    GroupCtrlSlot,
-    RuleSlot,
-  },
-})
-export default class App extends Vue {
-ctrlEnableDragNDrop: boolean = true;
+const ctrlEnableDragNDrop = ref<boolean>(true);
 
-  ctrlEnableMaxDepth: boolean = false;
+const ctrlEnableMaxDepth = ref<boolean>(false);
 
-  ctrlMaxDepth: number = 3;
+const ctrlMaxDepth = ref<number>(3);
 
-  ctrlEnableGroupOperatorSlot: boolean = true;
+const ctrlEnableGroupOperatorSlot = ref<boolean>(true);
 
-  ctrlEnableGroupControlSlot: boolean = true;
+const ctrlEnableGroupControlSlot = ref<boolean>(true);
 
-  ctrlEnableRuleSlot: boolean = true;
+const ctrlEnableRuleSlot = ref<boolean>(true);
 
-  query: RuleSet | null = {
-    operatorIdentifier: 'OR',
-    children: [
-      {
-        identifier: 'txt',
-        value: 'A',
-      },
-      {
-        operatorIdentifier: 'AND',
-        children: [
-          {
-            identifier: 'txt',
-            value: 'A',
-          },
-          {
-            identifier: 'txt',
-            value: 'B',
-          },
-          {
-            identifier: 'txt',
-            value: 'C',
-          },
-          {
-            operatorIdentifier: 'AND',
-            children: [
-              {
-                identifier: 'txt',
-                value: 'c',
-              },
-              {
-                identifier: 'txt',
-                value: 'd',
-              },
-              {
-                operatorIdentifier: 'AND',
-                children: [
-                  {
-                    identifier: 'txt',
-                    value: 'a',
-                  },
-                  {
-                    identifier: 'txt',
-                    value: 'b',
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-      },
-      {
-        operatorIdentifier: 'AND',
-        children: [
-          {
-            identifier: 'txt',
-            value: 'X',
-          },
-          {
-            identifier: 'txt',
-            value: 'Y',
-          },
-          {
-            identifier: 'txt',
-            value: 'Z',
-          },
-        ],
-      },
-    ],
-  };
-
-  config: QueryBuilderConfig = {
-    operators: [
-      {
-        name: 'AND',
-        identifier: 'AND',
-      },
-      {
-        name: 'OR',
-        identifier: 'OR',
-      },
-    ],
-    rules: [
-      {
-        identifier: 'txt',
-        name: 'Text Selection',
-        component: InputSelection,
-        initialValue: '',
-      },
-      {
-        identifier: 'num',
-        name: 'Number Selection',
-        component: NumberSelection,
-        initialValue: 10,
-      },
-    ],
-    maxDepth: undefined,
-    colors: [
-      'hsl(88, 50%, 55%)',
-      'hsl(187, 100%, 45%)',
-      'hsl(15, 100%, 55%)',
-    ],
-    dragging: {
-      animation: 300,
-      disabled: false,
-      ghostClass: 'ghost',
+const query = ref<RuleSet>({
+  operatorIdentifier: 'OR',
+  children: [
+    {
+      identifier: 'txt',
+      value: 'A',
     },
+    {
+      operatorIdentifier: 'AND',
+      children: [
+        {
+          identifier: 'txt',
+          value: 'A',
+        },
+        {
+          identifier: 'txt',
+          value: 'B',
+        },
+        {
+          identifier: 'txt',
+          value: 'C',
+        },
+        {
+          operatorIdentifier: 'AND',
+          children: [
+            {
+              identifier: 'txt',
+              value: 'c',
+            },
+            {
+              identifier: 'txt',
+              value: 'd',
+            },
+            {
+              operatorIdentifier: 'AND',
+              children: [
+                {
+                  identifier: 'txt',
+                  value: 'a',
+                },
+                {
+                  identifier: 'txt',
+                  value: 'b',
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+    {
+      operatorIdentifier: 'AND',
+      children: [
+        {
+          identifier: 'txt',
+          value: 'X',
+        },
+        {
+          identifier: 'txt',
+          value: 'Y',
+        },
+        {
+          identifier: 'txt',
+          value: 'Z',
+        },
+      ],
+    },
+  ],
+});
+
+const config: QueryBuilderConfig = reactive<QueryBuilderConfig>({
+  operators: [
+    {
+      name: 'AND',
+      identifier: 'AND',
+    },
+    {
+      name: 'OR',
+      identifier: 'OR',
+    },
+  ],
+  rules: [
+    {
+      identifier: 'txt',
+      name: 'Text Selection',
+      component: markRaw(InputSelection),
+      initialValue: '',
+    },
+    {
+      identifier: 'num',
+      name: 'Number Selection',
+      component: markRaw(NumberSelection),
+      initialValue: 10,
+    },
+  ],
+  maxDepth: undefined,
+  colors: [
+    'hsl(88, 50%, 55%)',
+    'hsl(187, 100%, 45%)',
+    'hsl(15, 100%, 55%)',
+  ],
+  dragging: {
+    animation: 300,
+    disabled: false,
+    ghostClass: 'ghost',
+  },
+});
+
+const getConfig = computed<QueryBuilderConfig>(() => {
+  const configResult: QueryBuilderConfig = { ...config };
+
+  if (!configResult.dragging) {
+    configResult.dragging = {};
+  }
+  configResult.dragging.disabled = !ctrlEnableDragNDrop.value;
+
+  configResult.maxDepth = Math.abs(ctrlMaxDepth.value || 0);
+  if (!ctrlEnableMaxDepth.value) {
+    configResult.maxDepth = undefined;
   }
 
-  get getConfig(): QueryBuilderConfig {
-    const config: QueryBuilderConfig = { ...this.config };
+  return configResult;
+});
 
-    if (!config.dragging) {
-      config.dragging = {};
-    }
-    config.dragging.disabled = !this.ctrlEnableDragNDrop;
-
-    config.maxDepth = Math.abs(this.ctrlMaxDepth || 0);
-    if (!this.ctrlEnableMaxDepth) {
-      config.maxDepth = undefined;
-    }
-
-    return config;
-  }
-}
 </script>
 
 <style lang="scss">
@@ -307,7 +299,7 @@ body {
 
 .query-builder-group-slot__group-selection {
   padding: 16px;
-  background-color: hsl(0, 0, 95%);
+  background-color: hsl(0, 0%, 95%);
 }
 .query-builder-group-slot__group-operator {
   margin-right: 8px;

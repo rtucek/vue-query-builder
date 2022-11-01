@@ -1,4 +1,6 @@
+import { markRaw } from 'vue';
 import { mount } from '@vue/test-utils';
+import { vi } from 'vitest';
 import QueryBuilder from '@/QueryBuilder.vue';
 import QueryBuilderGroup from '@/QueryBuilderGroup.vue';
 import QueryBuilderRule from '@/QueryBuilderRule.vue';
@@ -7,13 +9,13 @@ import App from '../components/App.vue';
 import Component from '../components/Component.vue';
 
 interface QueryBuilderTemplate {
-  value: any,
+  modelValue: any,
   config: QueryBuilderConfig,
 }
 
 describe('Test basic functionality of QueryBuilder.vue', () => {
   const getTemplate = (): QueryBuilderTemplate => ({
-    value: null,
+    modelValue: null,
     config: {
       operators: [
         {
@@ -29,13 +31,13 @@ describe('Test basic functionality of QueryBuilder.vue', () => {
         {
           identifier: 'txt',
           name: 'Text Selection',
-          component: Component,
+          component: markRaw(Component),
           initialValue: '',
         },
         {
           identifier: 'num',
           name: 'Number Selection',
-          component: Component,
+          component: markRaw(Component),
           initialValue: 10,
         },
       ],
@@ -52,7 +54,7 @@ describe('Test basic functionality of QueryBuilder.vue', () => {
     // It entirely useless, but according to the spec, this is a valid configuration and show not
     // fail.
     mount(QueryBuilder, {
-      propsData: template,
+      props: template,
     });
   });
 
@@ -74,8 +76,8 @@ describe('Test basic functionality of QueryBuilder.vue', () => {
 
     // Assert update has propagated
     options.at(2).setSelected();
-    expect(wrapper.emitted('input')).toHaveLength(1);
-    expect(wrapper.emitted('input')).toStrictEqual([[{ operatorIdentifier: 'or', children: [] }]]);
+    expect(wrapper.emitted('update:modelValue')).toHaveLength(1);
+    expect(wrapper.emitted('update:modelValue')).toStrictEqual([[{ operatorIdentifier: 'or', children: [] }]]);
   });
 
   it('selects a rule', async () => {
@@ -102,26 +104,26 @@ describe('Test basic functionality of QueryBuilder.vue', () => {
     await wrapper.vm.$nextTick();
     expect((addRuleBtn.element as HTMLButtonElement).disabled).toBeFalsy();
     addRuleBtn.trigger('click');
-    expect(wrapper.emitted('input')).toHaveLength(1);
-    expect(wrapper.emitted('input')).toStrictEqual([[{ operatorIdentifier: 'and', children: [{ identifier: 'num', value: 10 }] }]]);
+    expect(wrapper.emitted('update:modelValue')).toHaveLength(1);
+    expect(wrapper.emitted('update:modelValue')).toStrictEqual([[{ operatorIdentifier: 'and', children: [{ identifier: 'num', value: 10 }] }]]);
 
     // Manually update value
     await wrapper.vm.$nextTick();
     const num = wrapper.findComponent(Component);
-    num.vm.$emit('input', 20);
-    expect(wrapper.emitted('input')).toHaveLength(2);
-    expect((wrapper.emitted('input') as any)[1]).toStrictEqual([{ operatorIdentifier: 'and', children: [{ identifier: 'num', value: 20 }] }]);
+    num.vm.$emit('update:modelValue', 20);
+    expect(wrapper.emitted('update:modelValue')).toHaveLength(2);
+    expect((wrapper.emitted('update:modelValue') as any)[1]).toStrictEqual([{ operatorIdentifier: 'and', children: [{ identifier: 'num', value: 20 }] }]);
   });
 
   it('makes use of an initial value\'s factory function', async () => {
-    const initialValue = jest.fn(() => 'Hello World');
+    const initialValue = vi.fn(() => 'Hello World');
 
     const data = getTemplate();
     data.config.rules = [
       {
         identifier: 'txt',
         name: 'Text Selection',
-        component: Component,
+        component: markRaw(Component),
         initialValue,
       },
     ];
@@ -144,8 +146,8 @@ describe('Test basic functionality of QueryBuilder.vue', () => {
     addRuleBtn.trigger('click');
     expect(group.emitted('query-update')).toHaveLength(1);
     expect((group.emitted('query-update') as any)[0]).toStrictEqual([{ operatorIdentifier: 'and', children: [{ identifier: 'txt', value: 'Hello World' }] }]);
-    expect(wrapper.emitted('input')).toHaveLength(1);
-    expect((wrapper.emitted('input') as any)[0]).toStrictEqual([{ operatorIdentifier: 'and', children: [{ identifier: 'txt', value: 'Hello World' }] }]);
+    expect(wrapper.emitted('update:modelValue')).toHaveLength(1);
+    expect((wrapper.emitted('update:modelValue') as any)[0]).toStrictEqual([{ operatorIdentifier: 'and', children: [{ identifier: 'txt', value: 'Hello World' }] }]);
     expect(initialValue).toHaveBeenCalled();
   });
 
@@ -183,13 +185,13 @@ describe('Test basic functionality of QueryBuilder.vue', () => {
           {
             identifier: 'txt',
             name: 'Text Selection',
-            component: Component,
+            component: markRaw(Component),
             initialValue: '',
           },
           {
             identifier: 'num',
             name: 'Number Selection',
-            component: Component,
+            component: markRaw(Component),
             initialValue: 10,
           },
         ],
@@ -304,13 +306,13 @@ describe('Test basic functionality of QueryBuilder.vue', () => {
           {
             identifier: 'txt',
             name: 'Text Selection',
-            component: Component,
+            component: markRaw(Component),
             initialValue: '',
           },
           {
             identifier: 'num',
             name: 'Number Selection',
-            component: Component,
+            component: markRaw(Component),
             initialValue: 10,
           },
         ],
@@ -418,7 +420,7 @@ describe('Test basic functionality of QueryBuilder.vue', () => {
       .at(0);
 
     await wrapper.vm.$nextTick();
-    rule.find('.dummy-component').vm.$emit('input', 'D');
+    rule.findComponent('.dummy-component').vm.$emit('update:modelValue', 'D');
     expect(app.vm.$data.query).toStrictEqual({
       operatorIdentifier: 'or',
       children: [

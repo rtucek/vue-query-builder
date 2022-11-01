@@ -1,3 +1,4 @@
+import { markRaw } from 'vue';
 import { mount } from '@vue/test-utils';
 import Draggable from 'vuedraggable';
 import { QueryBuilderConfig, RuleSet } from '@/types';
@@ -22,13 +23,13 @@ describe('Testing drag\'n\'drop related features', () => {
       {
         identifier: 'txt',
         name: 'Text Selection',
-        component: Component,
+        component: markRaw(Component),
         initialValue: 'foo',
       },
       {
         identifier: 'num',
         name: 'Number Selection',
-        component: Component,
+        component: markRaw(Component),
         initialValue: 10,
       },
     ],
@@ -107,8 +108,8 @@ describe('Testing drag\'n\'drop related features', () => {
 
   it('asserts nothing happens if colors are not configured', () => {
     const app = mount(QueryBuilder, {
-      propsData: {
-        value,
+      props: {
+        modelValue: value,
         config,
       },
     });
@@ -116,7 +117,7 @@ describe('Testing drag\'n\'drop related features', () => {
     const groups = app.findAllComponents(QueryBuilderGroup);
     expect(groups).toHaveLength(9);
 
-    groups.wrappers
+    groups
       .forEach(w => {
         expect(w.vm.$props).toHaveProperty('depth');
         const el = (w.findComponent(QueryBuilderChild)).element as HTMLDivElement;
@@ -133,8 +134,8 @@ describe('Testing drag\'n\'drop related features', () => {
     const newConfig: QueryBuilderConfig = { ...config, colors };
 
     const app = mount(QueryBuilder, {
-      propsData: {
-        value,
+      props: {
+        modelValue: value,
         config: newConfig,
       },
     });
@@ -142,7 +143,7 @@ describe('Testing drag\'n\'drop related features', () => {
     const groups = app.findAllComponents(QueryBuilderGroup);
     expect(groups).toHaveLength(9);
 
-    groups.wrappers
+    groups
       .forEach(w => {
         expect(w.vm.$props).toHaveProperty('depth');
         const el = (w.findComponent(Draggable)).element as HTMLDivElement;

@@ -1,3 +1,4 @@
+import { markRaw } from 'vue';
 import {
   isQueryBuilderConfig, isRule, isRuleSet, isOperatorDefinition, isRuleDefinition,
 } from '@/guards';
@@ -99,7 +100,7 @@ describe('Testing component props and guards', () => {
       {
         identifier: 'baz',
         name: 'baz',
-        component: Component,
+        component: markRaw(Component),
       },
     ].forEach((t: any) => expect(isRuleDefinition(t)).toBeTruthy());
 
@@ -108,8 +109,8 @@ describe('Testing component props and guards', () => {
       {},
       null,
       [],
-      { name: 'baz', component: Component },
-      { identifier: 'baz', component: Component },
+      { name: 'baz', component: markRaw(Component) },
+      { identifier: 'baz', component: markRaw(Component) },
       { identifier: 'baz', name: 'baz', component: 1234 },
     ].forEach((t: any) => expect(isRuleDefinition(t)).toBeFalsy());
   });
@@ -138,7 +139,7 @@ describe('Testing component props and guards', () => {
           {
             identifier: 'baz',
             name: 'baz',
-            component: Component,
+            component: markRaw(Component),
           },
         ],
       },

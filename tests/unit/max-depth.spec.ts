@@ -1,5 +1,6 @@
+import { markRaw } from 'vue';
 import { mount, shallowMount, Wrapper } from '@vue/test-utils';
-import Vue from 'vue';
+import { vi } from 'vitest';
 import Sortable, {
   GroupOptions, PutResult, SortableEvent, SortableOptions,
 } from 'sortablejs';
@@ -101,13 +102,13 @@ describe('Testing max-depth behaviour', () => {
       {
         identifier: 'txt',
         name: 'Text Selection',
-        component: Component,
+        component: markRaw(Component),
         initialValue: '',
       },
       {
         identifier: 'num',
         name: 'Number Selection',
-        component: Component,
+        component: markRaw(Component),
         initialValue: 10,
       },
     ],
@@ -121,8 +122,8 @@ describe('Testing max-depth behaviour', () => {
 
   it('verifies not groups are added upon max-depth', () => {
     const createApp = () => mount(QueryBuilder, {
-      propsData: {
-        value: { ...value },
+      props: {
+        modelValue: { ...value },
         config: { ...config },
       },
     });
@@ -130,39 +131,37 @@ describe('Testing max-depth behaviour', () => {
     // Test non-leave group
     let app = createApp();
     let group = app.findAllComponents(QueryBuilderGroup)
-      .wrappers
       .filter(g => g.vm.$props.depth === 3)
       .shift() as Wrapper<QueryBuilderGroupInterface, Element>;
     // Assert button is present
     let button = group.find('.query-builder-group__group-adding-button');
     expect(button.exists()).toBeTruthy();
     button.trigger('click');
-    let evQueryUpdate = app.emitted('input');
+    let evQueryUpdate = app.emitted('update:modelValue');
     expect(evQueryUpdate).toHaveLength(1);
 
     // Test "leaf" group
     app = createApp();
     group = app.findAllComponents(QueryBuilderGroup)
-      .wrappers
       .filter(g => g.vm.$props.depth === 4)
       .shift() as Wrapper<QueryBuilderGroupInterface, Element>;
     // Assert button is absent
     button = group.find('.query-builder-group__group-adding-button');
     expect(button.exists()).toBeFalsy();
-    evQueryUpdate = app.emitted('input');
+    evQueryUpdate = app.emitted('update:modelValue');
     expect(evQueryUpdate).toBeUndefined();
   });
 
   it('verifies the behaviour of GroupCtrlSlotProps slot', () => {
     const createApp = () => mount(QueryBuilder, {
-      propsData: {
-        value: { ...value },
+      props: {
+        modelValue: { ...value },
         config: { ...config },
       },
-      scopedSlots: {
+      slots: {
         groupControl: `
+        <template v-slot="props">
           <div
-            slot-scope="props"
             class="slot-wrapper"
           >
             SLOT
@@ -188,13 +187,12 @@ describe('Testing max-depth behaviour', () => {
               Add Group
             </button>
           </div>
-        `,
+        </template>`,
       },
     });
 
     let app = createApp();
     let group = app.findAllComponents(QueryBuilderGroup)
-      .wrappers
       .filter(g => g.vm.$props.depth === 3)
       .shift() as Wrapper<QueryBuilderGroupInterface, Element>;
     expect(group.vm.groupControlSlotProps.maxDepthExeeded).toBeFalsy();
@@ -202,27 +200,26 @@ describe('Testing max-depth behaviour', () => {
     let button = group.find('.slot-new-group');
     expect(button.exists()).toBeTruthy();
     button.trigger('click');
-    let evQueryUpdate = app.emitted('input');
+    let evQueryUpdate = app.emitted('update:modelValue');
     expect(evQueryUpdate).toHaveLength(1);
 
     // Test leaf group
     app = createApp();
     group = app.findAllComponents(QueryBuilderGroup)
-      .wrappers
       .filter(g => g.vm.$props.depth === 4)
       .shift() as Wrapper<QueryBuilderGroupInterface, Element>;
     expect(group.vm.groupControlSlotProps.maxDepthExeeded).toBeTruthy();
     // Assert button is absent
     button = group.find('.slot-new-group');
     expect(button.exists()).toBeFalsy();
-    evQueryUpdate = app.emitted('input');
+    evQueryUpdate = app.emitted('update:modelValue');
     expect(evQueryUpdate).toBeUndefined();
   });
 
   it('prunes existing branches which are beyond the max-depth setting', async () => {
     const app = mount(QueryBuilder, {
-      propsData: {
-        value: { ...value },
+      props: {
+        modelValue: { ...value },
         config: { ...config },
       },
     });
@@ -230,37 +227,37 @@ describe('Testing max-depth behaviour', () => {
     const wrapper = app.findComponent(QueryBuilder);
 
     // Before, ensure nothing has been changed
-    expect(wrapper.vm.$props.value).toHaveProperty('children.0.children.3.children.2.children.1.children.0.value', 'G');
-    expect(app.emitted('input')).toBeUndefined();
+    expect(wrapper.vm.$props.modelValue).toHaveProperty('children.0.children.3.children.2.children.1.children.0.value', 'G');
+    expect(app.emitted('update:modelValue')).toBeUndefined();
 
     // Reduce max depth
     await app.setProps({
-      value: { ...value },
+      modelValue: { ...value },
       config: { ...config, maxDepth: 3 },
     });
-    expect(app.emitted('input')).toHaveLength(1);
-    expect((app.emitted('input') as any[])[0]).not.toHaveProperty('0.children.0.children.3.children.2.children.1.children.0.value', 'G');
-    expect((app.emitted('input') as any[])[0][0].children[0].children[3].children[2].children).toHaveLength(2);
-    expect((app.emitted('input') as any[])[0]).toHaveProperty('0.children.0.children.3.children.2.children', [{ identifier: 'txt', value: 'F' }, { identifier: 'txt', value: 'H' }]);
+    expect(app.emitted('update:modelValue')).toHaveLength(1);
+    expect((app.emitted('update:modelValue') as any[])[0]).not.toHaveProperty('0.children.0.children.3.children.2.children.1.children.0.value', 'G');
+    expect((app.emitted('update:modelValue') as any[])[0][0].children[0].children[3].children[2].children).toHaveLength(2);
+    expect((app.emitted('update:modelValue') as any[])[0]).toHaveProperty('0.children.0.children.3.children.2.children', [{ identifier: 'txt', value: 'F' }, { identifier: 'txt', value: 'H' }]);
 
     // Don't allow any group children
     await app.setProps({
-      value: { ...value },
+      modelValue: { ...value },
       config: { ...config, maxDepth: 0 },
     });
 
-    expect((app.emitted('input') as any[]).pop()[0].children).toHaveLength(0);
+    expect((app.emitted('update:modelValue') as any[]).pop()[0].children).toHaveLength(0);
   });
 
   it('asserts no additional group can be created, beyond the mad-depth setting', () => {
     const app = mount(QueryBuilder, {
-      propsData: {
-        value: { ...value },
+      props: {
+        modelValue: { ...value },
         config: { ...config },
       },
     });
 
-    const groups = app.findAllComponents(QueryBuilderGroup).wrappers;
+    const groups = app.findAllComponents(QueryBuilderGroup);
 
     const group1 = (
         groups.filter(g => g.vm.$props.depth === 1)
@@ -280,7 +277,7 @@ describe('Testing max-depth behaviour', () => {
   it('checks and rejects movements, violating the max depth policy', () => {
     const buildDragEl = (r: Rule | RuleSet, c: QueryBuilderConfig): HTMLElement => {
       const rChild = shallowMount(QueryBuilderChild, {
-        propsData: {
+        props: {
           query: { ...r },
           config: { ...c },
         },
@@ -301,13 +298,13 @@ describe('Testing max-depth behaviour', () => {
     };
 
     const app = mount(QueryBuilder, {
-      propsData: {
-        value: { ...value },
+      props: {
+        modelValue: { ...value },
         config: { ...config },
       },
     });
 
-    const groups = app.findAllComponents(QueryBuilderGroup).wrappers;
+    const groups = app.findAllComponents(QueryBuilderGroup);
     const s = (null as never) as Sortable;
     const se = (null as never) as SortableEvent;
 
@@ -333,10 +330,10 @@ describe('Testing max-depth behaviour', () => {
       children: [],
     });
 
-    const getMergeTrap = jest.fn();
+    const getMergeTrap = vi.fn();
 
     const app = shallowMount(QueryBuilderGroup, {
-      propsData: {
+      props: {
         config: { ...config },
         query: newRuleSet(),
         depth: 4,

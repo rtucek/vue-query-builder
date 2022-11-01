@@ -1,26 +1,24 @@
-<script lang="ts">
-import { Vue, Component, Prop } from 'vue-property-decorator';
+<script lang="ts" setup>
+import { computed, defineProps, defineEmits, WritableComputedRef } from 'vue';
 
-@Component({
-  model: {
-    event: 'input',
-    prop: 'value',
-  },
-})
-export default class Input extends Vue {
-  @Prop({
+const props = defineProps({
+  modelValue: {
     type: String,
-    default: '',
-  }) readonly value!: string;
-
-  get model() {
-    return this.value;
+    default: 0
   }
+});
 
-  set model(value: string) {
-    this.$emit('input', value);
+const emit = defineEmits(['update:modelValue']);
+
+const model: WritableComputedRef<string> = computed<string>({
+  get: () => {
+    return props.modelValue;
+  },
+
+  set: (value: string) => {
+    emit('update:modelValue', value);
   }
-}
+});
 </script>
 
 <template>

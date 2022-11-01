@@ -1,13 +1,16 @@
-<script lang="ts">
-import { Vue, Component, Prop } from 'vue-property-decorator';
+<script lang="ts" setup>
+import { defineProps, PropType, ref } from 'vue';
 import { GroupCtrlSlotProps } from '@/types';
 
-@Component
-export default class GroupCtrlSlot extends Vue {
-  @Prop({ required: true }) readonly groupCtrl!: GroupCtrlSlotProps
+defineProps({
+  groupCtrl: {
+    type: Object as PropType<GroupCtrlSlotProps>,
+    required:true
+  }
+});
 
-  selectedRule: string = ''
-}
+const selectedRule = ref<string>('');
+
 </script>
 
 <template>

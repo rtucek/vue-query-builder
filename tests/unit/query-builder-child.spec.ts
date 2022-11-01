@@ -1,5 +1,5 @@
+import { markRaw, Component as VueComponent } from 'vue';
 import { shallowMount } from '@vue/test-utils';
-import Vue, { Component as VueComponent } from 'vue';
 import QueryBuilderChild from '@/QueryBuilderChild.vue';
 import {
   QueryBuilderConfig, Rule, RuleDefinition, RuleSet,
@@ -28,13 +28,13 @@ describe('Testing QueryBuilderChild', () => {
       {
         identifier: 'txt',
         name: 'Text Selection',
-        component: Component,
+        component: markRaw(Component),
         initialValue: '',
       },
       {
         identifier: 'num',
         name: 'Number Selection',
-        component: Component,
+        component: markRaw(Component),
         initialValue: 10,
       },
     ],
@@ -52,13 +52,13 @@ describe('Testing QueryBuilderChild', () => {
     };
 
     const child = shallowMount(QueryBuilderChild, {
-      propsData: {
+      props: {
         config: { ...config },
         query: { ...query },
       },
     });
 
-    expect((child.vm as QueryBuilderChildInterface).component.name).toBe('QueryBuilderRule');
+    expect((child.vm as QueryBuilderChildInterface).component.__name).toBe('QueryBuilderRule');
     expect((child.vm as QueryBuilderChildInterface).definition).not.toBeNull();
     expect((child.vm as QueryBuilderChildInterface).ruleDefinition).not.toBeNull();
   });
@@ -73,13 +73,13 @@ describe('Testing QueryBuilderChild', () => {
     };
 
     const child = shallowMount(QueryBuilderChild, {
-      propsData: {
+      props: {
         config: { ...config },
         query: { ...query },
       },
     });
 
-    expect((child.vm as QueryBuilderChildInterface).component.name).toBe('QueryBuilderGroup');
+    expect((child.vm as QueryBuilderChildInterface).component.__name).toBe('QueryBuilderGroup');
     expect((child.vm as QueryBuilderChildInterface).definition).toBeNull();
     expect((child.vm as QueryBuilderChildInterface).ruleDefinition).toBeNull();
   });

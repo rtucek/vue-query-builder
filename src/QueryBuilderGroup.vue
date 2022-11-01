@@ -1,10 +1,10 @@
-<script lang="ts">
+<script lang="ts" setup>
 import {
-  Component, Vue, Prop, Inject, Watch,
-} from 'vue-property-decorator';
+  defineProps, PropType, computed, watch, inject, onMounted, ref, WritableComputedRef, ComponentPublicInstance
+} from 'vue';
 import Draggable, {
   ChangeEvent, Moved, Added, Removed,
-} from 'vuedraggable';
+} from 'vuedraggable/src/vuedraggable';
 import Sortable, { SortableOptions, PutResult } from 'sortablejs';
 import {
   QueryBuilderConfig, RuleSet, Rule, OperatorDefinition, RuleDefinition, QueryBuilderGroupSym,
@@ -12,373 +12,368 @@ import {
 } from '@/types';
 import { isQueryBuilderConfig, isRule } from '@/guards';
 import MergeTrap from '@/MergeTrap';
-import QueryBuilderChild from './QueryBuilderChild.vue';
+import QueryBuilderChild from '@/QueryBuilderChild.vue';
 
-@Component({
-  components: {
-    Draggable,
-    QueryBuilderChild,
-  },
-})
-export default class QueryBuilderGroup extends Vue implements QueryBuilderGroupInterface {
-  @Prop({
+const emit = defineEmits(['query-update']);
+
+const props = defineProps({
+  config: {
+    type: Object as PropType<QueryBuilderConfig>,
     required: true,
-    validator: param => isQueryBuilderConfig(param),
-  }) readonly config!: QueryBuilderConfig
+    validator: (param: any) => isQueryBuilderConfig(param),
+  },
+  query: {
+    type: Object as PropType<RuleSet>,
+  },
+  depth: {
+    type: Number,
+  },
+});
 
-  @Prop() readonly query!: RuleSet
+const getMergeTrap: () => MergeTrap = inject('getMergeTrap');
 
-  @Prop() readonly depth!: number
+watch(() => props.query, (n: any) => pruneChildren());
 
-  @Inject() readonly getMergeTrap!: () => MergeTrap
+watch(() => props.config.maxDepth, (n: any) => pruneChildren());
 
-  @Watch('query')
-  watchQuery() {
-    this.pruneChildren();
+onMounted(() => pruneChildren());
+
+function pruneChildren() {
+  if (children.value.length === props.query.children.length) {
+    return;
   }
 
-  @Watch('config.maxDepth')
-  watchMaxDepth() {
-    this.pruneChildren();
-  }
+  // We've more groups as children, then allowed by the max policy.
+  const childrenUpdate = [...children.value];
 
-  mounted() {
-    this.pruneChildren();
-  }
+  emit(
+    'query-update',
+      {
+        operatorIdentifier: selectedOperator.value,
+        children: childrenUpdate,
+      } as RuleSet,
+  );
+}
 
-  pruneChildren() {
-    if (this.children.length === this.query.children.length) {
-      return;
-    }
-
-    // We've more groups as children, then allowed by the max policy.
-    const children = [...this.children];
-
-    this.$emit(
-      'query-update',
-        {
-          operatorIdentifier: this.selectedOperator,
-          children,
-        } as RuleSet,
-    );
-  }
-
-  get selectedOperator(): string {
-    return this.query.operatorIdentifier;
-  }
-
-  set selectedOperator(operatorIdentifier: string) {
-    this.$emit(
+const selectedOperator: WritableComputedRef<string> = computed<string>({
+  get: (): string => props.query.operatorIdentifier,
+  set: (operatorIdentifier: string) => {
+    emit(
       'query-update',
       {
-        ...this.query,
+        ...props.query,
         operatorIdentifier,
       } as RuleSet,
     );
+  },
+});
+
+const trap = ref<((position: number, newChild: RuleSet | Rule) => void) | null>(null);
+
+const selectedRule = ref<string>('');
+
+const type: Symbol = QueryBuilderGroupSym;
+
+const children = computed<Array<RuleSet | Rule>>(() => {
+  if (maxDepthExeeded.value) {
+    // filter children exclusively
+    return [...props.query.children].filter(isRule);
   }
 
-  trap: ((position: number, newChild: RuleSet | Rule) => void) | null = null;
+  return [...props.query.children];
+});
+const childProxies = computed<Array<any>>(() => children.value.map((item, index) => ({
+  __item: item,
+  __id: index,
+})));
 
-  selectedRule: string = '';
+function updateSort(ev: ChangeEvent<RuleSet | Rule>): void {
+  if (ev.moved) {
+    moveSortedChild(ev.moved);
 
-  type: Symbol = QueryBuilderGroupSym;
-
-  get children(): Array<RuleSet | Rule> {
-    if (this.maxDepthExeeded) {
-      // filter children exclusively
-      return [...this.query.children].filter(isRule);
-    }
-
-    return [...this.query.children];
+    return;
   }
 
-  updateSort(ev: ChangeEvent<RuleSet | Rule>): void {
-    if (ev.moved) {
-      this.moveSortedChild(ev.moved);
+  if (ev.added) {
+    addSortedChild(ev.added);
 
-      return;
-    }
-
-    if (ev.added) {
-      this.addSortedChild(ev.added);
-
-      return;
-    }
-
-    if (ev.removed) {
-      this.removeSortedChild(ev.removed);
-    }
+    return;
   }
 
-  // Item has been moved on the same group.
-  // We can just us the new children for updating the current state.
-  moveSortedChild(move: Moved<RuleSet | Rule>): void {
-    const children = [...this.children];
-
-    children.splice(move.newIndex, 0, children.splice(move.oldIndex, 1)[0]);
-
-    this.$emit(
-      'query-update',
-      {
-        operatorIdentifier: this.selectedOperator,
-        children,
-      } as RuleSet,
-    );
-  }
-
-  addSortedChild(added: Added<RuleSet | Rule>): void {
-    const children = [...this.children];
-
-    children.splice(added.newIndex, 0, added.element);
-
-    this.getMergeTrap().registerSortUpdate({
-      component: this,
-      ev: {
-        operatorIdentifier: this.selectedOperator,
-        children,
-      } as RuleSet,
-      adding: true,
-      affectedIdx: added.newIndex,
-    });
-  }
-
-  removeSortedChild(removed: Removed<RuleSet | Rule>): void {
-    const children = [...this.children];
-
-    children.splice(removed.oldIndex, 1);
-
-    this.getMergeTrap().registerSortUpdate({
-      component: this,
-      ev: {
-        operatorIdentifier: this.selectedOperator,
-        children,
-      } as RuleSet,
-      adding: false,
-      affectedIdx: removed.oldIndex,
-    });
-  }
-
-  get operators(): OperatorDefinition[] {
-    return this.config.operators;
-  }
-
-  get rules(): RuleDefinition[] {
-    return this.config.rules;
-  }
-
-  get childDepth(): number {
-    return this.depth + 1;
-  }
-
-  get childDepthClass(): string {
-    return `query-builder-group__group-children--depth-${this.childDepth}`;
-  }
-
-  get hasMaxDepth(): boolean {
-    return typeof this.config.maxDepth === 'number';
-  }
-
-  get maxDepthExeeded(): boolean {
-    if (!this.hasMaxDepth) {
-      return false;
-    }
-
-    return this.depth >= (this.config.maxDepth as number);
-  }
-
-  get borderColor(): string {
-    if (this.config.colors && this.config.colors.length > 0) {
-      return this.config.colors[this.depth % this.config.colors.length];
-    }
-
-    return '';
-  }
-
-  get getBorderStyle(): string {
-    if (this.borderColor) {
-      return `border-color: ${this.borderColor}`;
-    }
-
-    // Ignore borders
-    return 'border-left: 0';
-  }
-
-  get groupOperatorSlotProps(): GroupOperatorSlotProps {
-    return {
-      currentOperator: this.selectedOperator,
-      operators: this.operators,
-      updateCurrentOperator: (newOperator: string) => {
-        this.$emit(
-          'query-update',
-          {
-            ...this.query,
-            operatorIdentifier: newOperator,
-          } as RuleSet,
-        );
-      },
-    };
-  }
-
-  get groupControlSlotProps(): GroupCtrlSlotProps {
-    return {
-      maxDepthExeeded: this.maxDepthExeeded,
-      rules: this.rules,
-      addRule: (newRule: string) => {
-        const currentRule = this.selectedRule;
-        this.selectedRule = newRule;
-        this.addRule();
-        this.selectedRule = currentRule;
-      },
-      newGroup: (): void => this.newGroup(),
-    };
-  }
-
-  get dragOptions(): SortableOptions {
-    if (!this.config.dragging) {
-      // Sensitive default
-      return {
-        disabled: true,
-      };
-    }
-
-    if (!this.hasMaxDepth) {
-      // Config as-it-is
-      return this.config.dragging;
-    }
-
-    // As a special case, honor max-group policy.
-    return {
-      ...this.config.dragging,
-      group: {
-        name: this.config.dragging.group as string,
-        put: (to: Sortable, from: Sortable, dragEl: HTMLElement): PutResult => {
-          // eslint-disable-next-line no-underscore-dangle
-          const dragged = ((dragEl as any)?.__vue__) as QueryBuilderChild;
-          // Calculate maximum depth of dragged element
-          const childDepth = this.calculateMaxDepth({ ...dragged.query }, 0);
-
-          // Check if dropping element would violate max-depth policy.
-          // If so, don't allow dropping.
-          return this.depth + childDepth <= (this.config.maxDepth as number);
-        },
-      },
-    };
-  }
-
-  calculateMaxDepth(query: RuleSet | Rule, depthCnt: number): number {
-    if (isRule(query)) {
-      return depthCnt; // No nesting
-    }
-
-    return query.children
-      .reduce((cntPerChild, c) => Math.max(
-        cntPerChild,
-        this.calculateMaxDepth({ ...c }, depthCnt + 1),
-      ), depthCnt);
-  }
-
-  get showDragHandle(): boolean {
-    return !(this.dragOptions.disabled || this.depth === 0);
-  }
-
-  addRule(): void {
-    const children = [...this.children];
-
-    const selectedRule = this.config.rules.find(rule => rule.identifier === this.selectedRule);
-    if (!selectedRule) {
-      throw new Error(`Rule identifier "${this.selectedRule}" is invalid.`);
-    }
-
-    if (typeof selectedRule.initialValue === 'object' && selectedRule.initialValue !== null) {
-      throw new Error(`"initialValue" of "${selectedRule.identifier}" must not be an object - use a factory function!`);
-    }
-
-    let value: any = null; // null as sensitive default...
-    if (typeof selectedRule.initialValue !== 'undefined') {
-      // If a valid has been passed along, use it
-      value = selectedRule.initialValue;
-    }
-    if (typeof value === 'function') {
-      // initialValue is a factory function
-      value = value();
-    }
-
-    children.push({
-      identifier: selectedRule.identifier,
-      value,
-    } as Rule);
-
-    this.$emit(
-      'query-update',
-      {
-        operatorIdentifier: this.selectedOperator,
-        children,
-      } as RuleSet,
-    );
-
-    // Reset selection
-    this.selectedRule = '';
-  }
-
-  newGroup(): void {
-    if (this.maxDepthExeeded) {
-      // noop, as max depth reached
-      return;
-    }
-
-    const children = [...this.children];
-    children.push({
-      operatorIdentifier: this.config.operators[0].identifier,
-      children: [],
-    } as RuleSet);
-
-    this.$emit(
-      'query-update',
-      {
-        operatorIdentifier: this.selectedOperator,
-        children,
-      } as RuleSet,
-    );
-  }
-
-  updateChild(position: number, newChild: RuleSet | Rule): void {
-    if (this.trap) {
-      this.trap(position, newChild);
-
-      return;
-    }
-
-    const children = [...this.children];
-    children.splice(position, 1, newChild); // Replace child
-
-    this.$emit(
-      'query-update',
-      {
-        operatorIdentifier: this.selectedOperator,
-        children,
-      } as RuleSet,
-    );
-  }
-
-  deleteChild(idx: number): void {
-    const children = [...this.children];
-    children.splice(idx, 1);
-
-    this.$emit(
-      'query-update',
-      {
-        operatorIdentifier: this.selectedOperator,
-        children,
-      } as RuleSet,
-    );
+  if (ev.removed) {
+    removeSortedChild(ev.removed);
   }
 }
+
+// Item has been moved on the same group.
+// We can just us the new children for updating the current state.
+function moveSortedChild(move: Moved<RuleSet | Rule>): void {
+  const childrenUpdate = [...children.value];
+
+  childrenUpdate.splice(move.newIndex, 0, childrenUpdate.splice(move.oldIndex, 1)[0]);
+
+  emit(
+    'query-update',
+    {
+      operatorIdentifier: selectedOperator.value,
+      children: childrenUpdate,
+    } as RuleSet,
+  );
+}
+
+// NB: when accessing "this" via $parent, we gain access to the "expose proxy",
+// which is safe for comparing in the merge trap.
+const draggableComponent = ref<ComponentPublicInstance | null>(null);
+
+function addSortedChild(added: Added<RuleSet | Rule>): void {
+  const childrenUpdate = [...children.value];
+
+  childrenUpdate.splice(added.newIndex, 0, added.element.__item);
+
+  getMergeTrap().registerSortUpdate({
+    component: draggableComponent.value?.$parent,
+    ev: {
+      operatorIdentifier: selectedOperator.value,
+      children: childrenUpdate,
+    } as RuleSet,
+    adding: true,
+    affectedIdx: added.newIndex,
+  });
+}
+
+function removeSortedChild(removed: Removed<RuleSet | Rule>): void {
+  const childrenUpdate = [...children.value];
+
+  childrenUpdate.splice(removed.oldIndex, 1);
+
+  getMergeTrap().registerSortUpdate({
+    component: draggableComponent.value?.$parent,
+    ev: {
+      operatorIdentifier: selectedOperator.value,
+      children: childrenUpdate,
+    } as RuleSet,
+    adding: false,
+    affectedIdx: removed.oldIndex,
+  });
+}
+
+const operators = computed<OperatorDefinition[] >(() => props.config.operators);
+
+const rules = computed<RuleDefinition[]>(() => props.config.rules);
+
+const childDepth = computed<number>(() => props.depth + 1);
+
+const childDepthClass = computed<string>(() => `query-builder-group__group-children--depth-${childDepth.value}`);
+
+const hasMaxDepth = computed<boolean>(() => typeof props.config.maxDepth === 'number');
+
+const maxDepthExeeded = computed<boolean>(() => {
+  if (!hasMaxDepth.value) {
+    return false;
+  }
+
+  return props.depth >= (props.config.maxDepth as number);
+});
+
+const borderColor = computed<string>(() => {
+  if (props.config.colors && props.config.colors.length > 0) {
+    return props.config.colors[props.depth % props.config.colors.length];
+  }
+
+  return '';
+});
+
+const getBorderStyle = computed<string>(() => {
+  if (borderColor.value) {
+    return `border-color: ${borderColor.value}`;
+  }
+
+  // Ignore borders
+  return 'border-left: 0';
+});
+
+const groupOperatorSlotProps = computed<GroupOperatorSlotProps>(() => (
+  {
+    currentOperator: selectedOperator.value,
+    operators: operators.value,
+    updateCurrentOperator: (newOperator: string) => {
+      emit(
+        'query-update',
+        {
+          ...props.query,
+          operatorIdentifier: newOperator,
+        } as RuleSet,
+      );
+    },
+  }
+));
+
+const groupControlSlotProps = computed<GroupCtrlSlotProps>(() => (
+  {
+    maxDepthExeeded: maxDepthExeeded.value,
+    rules: rules.value,
+    addRule: (newRule: string) => {
+      const currentRule = selectedRule.value;
+      selectedRule.value = newRule;
+      addRule();
+      selectedRule.value = currentRule;
+    },
+    newGroup: (): void => newGroup(),
+  }
+));
+
+const dragOptions = computed<SortableOptions>(() => {
+  if (!props.config.dragging) {
+    // Sensitive default
+    return {
+      disabled: true,
+    };
+  }
+
+  if (!hasMaxDepth.value) {
+    // Config as-it-is
+    return props.config.dragging;
+  }
+
+  // As a special case, honor max-group policy.
+  return {
+    ...props.config.dragging,
+    group: {
+      name: props.config.dragging.group as string,
+      put: (to: Sortable, from: Sortable, dragEl: HTMLElement): PutResult => {
+        // eslint-disable-next-line no-underscore-dangle
+        const dragged = ((dragEl as any)?.__vue__);
+        // Calculate maximum depth of dragged element
+        const childDepthCurrent = calculateMaxDepth({ ...dragged.query }, 0);
+
+        // Check if dropping element would violate max-depth policy.
+        // If so, don't allow dropping.
+        return props.depth + childDepthCurrent <= (props.config.maxDepth as number);
+      },
+    },
+  };
+});
+
+function calculateMaxDepth(query: RuleSet | Rule, depthCnt: number): number {
+  if (isRule(query)) {
+    return depthCnt; // No nesting
+  }
+
+  return (query as RuleSet).children
+    .reduce((cntPerChild, c) => Math.max(
+      cntPerChild,
+      calculateMaxDepth({ ...c }, depthCnt + 1),
+    ), depthCnt);
+}
+
+const showDragHandle = computed<boolean>(() => !(dragOptions.value.disabled || props.depth === 0));
+
+function addRule(): void {
+  const childrenUpdate = [...children.value];
+
+  const selectedRuleFound = props.config.rules.find(rule => rule.identifier === selectedRule.value);
+  if (!selectedRuleFound) {
+    throw new Error(`Rule identifier "${selectedRule.value}" is invalid.`);
+  }
+
+  if (typeof selectedRuleFound.initialValue === 'object' && selectedRuleFound.initialValue !== null) {
+    throw new Error(`"initialValue" of "${selectedRuleFound.identifier}" must not be an object - use a factory function!`);
+  }
+
+  let value: any = null; // null as sensitive default...
+  if (typeof selectedRuleFound.initialValue !== 'undefined') {
+    // If a valid has been passed along, use it
+    value = selectedRuleFound.initialValue;
+  }
+  if (typeof value === 'function') {
+    // initialValue is a factory function
+    value = value();
+  }
+
+  childrenUpdate.push({
+    identifier: selectedRuleFound.identifier,
+    value,
+  } as Rule);
+
+  emit(
+    'query-update',
+    {
+      operatorIdentifier: selectedOperator.value,
+      children: childrenUpdate,
+    } as RuleSet,
+  );
+
+  // Reset selection
+  selectedRule.value = '';
+}
+
+function newGroup(): void {
+  if (maxDepthExeeded.value) {
+    // noop, as max depth reached
+    return;
+  }
+
+  const childrenUpdate = [...children.value];
+  childrenUpdate.push({
+    operatorIdentifier: props.config.operators[0].identifier,
+    children: [],
+  } as RuleSet);
+
+  emit(
+    'query-update',
+    {
+      operatorIdentifier: selectedOperator.value,
+      children: childrenUpdate,
+    } as RuleSet,
+  );
+}
+
+function updateChild(position: number, newChild: RuleSet | Rule): void {
+  if (trap.value) {
+    trap.value(position, newChild);
+
+    return;
+  }
+
+  const childrenUpdate = [...children.value];
+  childrenUpdate.splice(position, 1, newChild); // Replace child
+
+  emit(
+    'query-update',
+    {
+      operatorIdentifier: selectedOperator.value,
+      children: childrenUpdate,
+    } as RuleSet,
+  );
+}
+
+function deleteChild(idx: number): void {
+  const childrenUpdate = [...children.value];
+  childrenUpdate.splice(idx, 1);
+
+  emit(
+    'query-update',
+    {
+      operatorIdentifier: selectedOperator.value,
+      children: childrenUpdate,
+    } as RuleSet,
+  );
+}
+
+defineExpose({
+  type,
+  children,
+  depth: computed(() => props.depth),
+  selectedOperator,
+  trap,
+});
+
 </script>
 
 <template>
   <div class="query-builder-group">
     <div class="query-builder-group__control">
-      <template v-if="$scopedSlots.groupOperator">
+      <template v-if="$slots.groupOperator">
         <div class="query-builder-group__group-selection-slot">
           <img
             v-if="showDragHandle"
@@ -412,7 +407,7 @@ export default class QueryBuilderGroup extends Vue implements QueryBuilderGroupI
           </select>
         </div>
       </template>
-      <template v-if="$scopedSlots.groupControl">
+      <template v-if="$slots.groupControl">
         <slot
           name="groupControl"
           v-bind="groupControlSlotProps"
@@ -452,31 +447,35 @@ export default class QueryBuilderGroup extends Vue implements QueryBuilderGroupI
       class="query-builder-group__group-children"
       :class="childDepthClass"
       :style="getBorderStyle"
-      :value="children"
+      :modelValue="childProxies"
       @change="updateSort"
+      item-key="__id"
       tag="div"
       v-bind="dragOptions"
+      ref="draggableComponent"
     >
-      <query-builder-child
-        v-for="(child, idx) in children"
-        :key="idx"
-        :config="config"
-        :query="child"
-        :depth="childDepth"
-        @query-update="updateChild(idx, $event)"
-        @delete-child="deleteChild(idx)"
-        class="query-builder-group__child"
-      >
-        <template
-          v-for="(_, slotName) in $scopedSlots"
-          v-slot:[slotName]="props"
+      <template #item="{element: child, index: idx}">
+        <query-builder-child
+          :key="idx"
+          :config="config"
+          :query="child.__item"
+          :depth="childDepth"
+          @query-update="updateChild(idx, $event)"
+          @delete-child="deleteChild(idx)"
+          class="query-builder-group__child"
         >
-          <slot
-            :name="slotName"
-            v-bind="props"
-          />
-        </template>
-      </query-builder-child>
+          <template
+            v-for="(_, slotName) in $slots"
+            v-slot:[slotName]="props"
+          >
+            <slot
+              :name="slotName"
+              v-bind="props"
+            />
+          </template>
+        </query-builder-child>
+      </template>
+
     </draggable>
   </div>
 </template>
@@ -489,7 +488,7 @@ export default class QueryBuilderGroup extends Vue implements QueryBuilderGroupI
 
 .query-builder-group__group-selection {
   padding: 16px;
-  background-color: hsl(0, 0, 95%);
+  background-color: hsl(0, 0%, 95%);
 }
 
 .query-builder-group__group-selection,

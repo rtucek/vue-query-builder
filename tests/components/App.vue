@@ -9,22 +9,20 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
-
 import QueryBuilder from '@/QueryBuilder.vue';
 import { RuleSet, QueryBuilderConfig } from '@/types';
 
-@Component({
+// NB: this component must use options api to declare data because vue-test-utils will not 
+// patch data composed with script setup.
+export default {
+  data() {
+    return {
+      query: /* RuleSet | null: */ null,
+      config: /* QueryBuilderConfig: */ null,
+    };
+  },
   components: {
     QueryBuilder,
   },
-})
-export default class App extends Vue {
-  query: RuleSet | null = null;
-
-  config: QueryBuilderConfig = {
-    operators: [],
-    rules: [],
-  }
-}
+};
 </script>

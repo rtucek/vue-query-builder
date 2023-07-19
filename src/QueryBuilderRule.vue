@@ -1,71 +1,73 @@
-<script lang="ts">
-import { Component, Vue, Prop } from 'vue-property-decorator';
-import { Component as VueComponent } from 'vue';
+<script lang="ts" setup>
+import {
+  defineProps, PropType, computed, Component as VueComponent, WritableComputedRef,
+} from 'vue';
 import {
   QueryBuilderConfig, Rule, RuleDefinition, RuleSlotProps,
 } from '@/types';
 import { isQueryBuilderConfig } from '@/guards';
 
-@Component
-export default class QueryBuilderRule extends Vue {
-  @Prop({
+const emit = defineEmits(['query-update']);
+
+const props = defineProps({
+  config: {
+    type: Object as PropType<QueryBuilderConfig>,
     required: true,
-    validator: param => isQueryBuilderConfig(param),
-  }) readonly config!: QueryBuilderConfig
+    validator: (param: any) => isQueryBuilderConfig(param),
+  },
+  query: {
+    type: Object as PropType<Rule>,
+  },
+});
 
-  @Prop() readonly query!: Rule
+const definition = computed<RuleDefinition>(() => {
+  const ruleDefinition = props.config
+    .rules
+    .find(rule => rule.identifier === props.query.identifier);
 
-  get definition(): RuleDefinition {
-    const ruleDefinition = this.config
-      .rules
-      .find(rule => rule.identifier === this.query.identifier);
-
-    if (ruleDefinition) {
-      return ruleDefinition;
-    }
-
-    throw new Error(`Invalid identifier "${this.query.identifier}": no rule definition available.`);
+  if (ruleDefinition) {
+    return ruleDefinition;
   }
 
-  get component(): VueComponent | string {
-    return this.definition.component;
-  }
+  throw new Error(`Invalid identifier "${props.query.identifier}": no rule definition available.`);
+});
 
-  get ruleData(): any {
-    return this.query.value;
-  }
+const component = computed<VueComponent | string>(() => definition.value.component);
 
-  set ruleData(update: any) {
-    this.ruleUpdate(update);
-  }
+const ruleData: WritableComputedRef<any> = computed<any>({
+  get: () => props.query.value,
+  set: (update: any) => {
+    ruleUpdate(update);
+  },
+});
 
-  get ruleSlotProps(): RuleSlotProps {
-    return {
-      ruleComponent: this.component,
-      ruleData: this.query.value,
-      ruleIdentifier: this.query.identifier,
-      updateRuleData: (ruleData: any) => this.ruleUpdate(ruleData),
-    };
+const ruleSlotProps = computed<RuleSlotProps>(() => (
+  {
+    ruleComponent: component.value,
+    ruleData: props.query.value,
+    ruleIdentifier: props.query.identifier,
+    updateRuleData: (ruleDataParam: any) => ruleUpdate(ruleDataParam),
   }
+));
 
-  ruleUpdate(update: any) {
-    this.$emit(
-      'query-update',
-      {
-        identifier: this.query.identifier,
-        value: update,
-      } as Rule,
-    );
-  }
-
-  get showDragHandle(): boolean {
-    if (this.config.dragging) {
-      return !this.config.dragging.disabled;
-    }
-
-    return false;
-  }
+function ruleUpdate(update: any) {
+  emit(
+    'query-update',
+    {
+      identifier: props.query.identifier,
+      value: update,
+    } as Rule,
+  );
 }
+
+const showDragHandle = computed<boolean>(() => {
+  if (props.config.dragging) {
+    return !props.config.dragging.disabled;
+  }
+
+  return false;
+});
+
 </script>
 
 <template>
@@ -76,7 +78,7 @@ export default class QueryBuilderRule extends Vue {
       src="./grip-vertical-solid.svg"
       alt="Drag element to target"
     >
-    <template v-if="$scopedSlots.rule">
+    <template v-if="$slots.rule">
       <slot
           name="rule"
           v-bind="ruleSlotProps"
@@ -97,7 +99,7 @@ export default class QueryBuilderRule extends Vue {
 <style lang="scss" scoped>
 .query-builder-rule {
   position: relative;
-  background-color: hsl(0, 0, 95%);
+  background-color: hsl(0, 0%, 95%);
   padding: 16px;
   padding-right: 32px;
   display: flex;

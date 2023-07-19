@@ -1,19 +1,23 @@
-<script lang="ts">
-import { Component, Vue, Prop } from 'vue-property-decorator';
+<script lang="ts" setup>
+import { computed, defineProps, PropType, WritableComputedRef } from 'vue';
 import { RuleSlotProps } from '@/types';
 
-@Component
-export default class RuleSlot extends Vue {
-  @Prop({ required: true }) readonly ruleCtrl!: RuleSlotProps
-
-  get ruleData(): any {
-    return this.ruleCtrl.ruleData;
+const props = defineProps({
+  ruleCtrl: {
+    type: Object as PropType<RuleSlotProps>,
+    required:true
   }
+});
 
-  set ruleData(newData: any) {
-    this.ruleCtrl.updateRuleData(newData);
+const ruleData: WritableComputedRef<any> = computed<any>({
+  get: (): any => {
+    return props.ruleCtrl.ruleData;
+  },
+
+  set: (newData: any) => {
+    props.ruleCtrl.updateRuleData(newData);
   }
-}
+});
 </script>
 
 <template>

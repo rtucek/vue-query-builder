@@ -1,76 +1,70 @@
-<script lang="ts">
-import { Component, Vue, Prop } from 'vue-property-decorator';
-import { Component as VueComponent } from 'vue';
+<script lang="ts" setup>
+import {
+  defineProps, PropType, computed, Component as VueComponent,
+} from 'vue';
 import {
   RuleSet, Rule, QueryBuilderConfig, RuleDefinition,
 } from '@/types';
-import { isRule, isRuleSet, isQueryBuilderConfig } from '@/guards';
+import { isRule as isRuleParam, isRuleSet as isRuleSetParam, isQueryBuilderConfig } from '@/guards';
 import QueryBuilderGroup from '@/QueryBuilderGroup.vue';
 import QueryBuilderRule from '@/QueryBuilderRule.vue';
 
-@Component({
-  components: {
-    QueryBuilderGroup,
-    QueryBuilderRule,
+defineEmits(['query-update', 'delete-child']);
+
+const props = defineProps({
+  query: {
+    type: Object as PropType<RuleSet | Rule>,
+    required: true,
+    validator: (query: any) => isRuleParam(query) || isRuleSetParam(query),
   },
-})
-export default class QueryBuilderChild extends Vue {
-  @Prop({
+  config: {
+    type: Object as PropType<QueryBuilderConfig>,
     required: true,
-    validator: param => isQueryBuilderConfig(param),
-  }) readonly config!: QueryBuilderConfig
+    validator: (param: any) => isQueryBuilderConfig(param),
+  },
+  depth: Number,
+});
 
-  @Prop({
-    required: true,
-    validator: query => isRule(query) || isRuleSet(query),
-  }) readonly query!: RuleSet | Rule
+const isRule = computed<boolean>(() => isRuleParam(props.query));
 
-  @Prop() readonly depth!: number
+const isRuleSet = computed<boolean>(() => isRuleSetParam(props.query));
 
-  get isRule(): boolean {
-    return isRule(this.query);
+const ruleDefinition = computed<RuleDefinition | null>(() => {
+  if (!isRule.value) {
+    return null;
   }
 
-  get isRuleSet(): boolean {
-    return isRuleSet(this.query);
+  const ruleDefinitionResult = props.config
+    .rules
+    .find(definition => definition.identifier === (props.query as Rule).identifier);
+
+  return ruleDefinitionResult || null;
+});
+
+const component = computed<VueComponent>(() => {
+  if (isRule.value && ruleDefinition.value) {
+    return QueryBuilderRule;
   }
 
-  get ruleDefinition(): RuleDefinition | null {
-    if (!this.isRule) {
-      return null;
-    }
-
-    const ruleDefinition = this.config
-      .rules
-      .find(definition => definition.identifier === (this.query as Rule).identifier);
-
-    return ruleDefinition || null;
+  if (isRuleSet.value) {
+    return QueryBuilderGroup;
   }
 
-  get component(): VueComponent {
-    if (this.isRule && this.ruleDefinition) {
-      return QueryBuilderRule;
-    }
+  throw new Error('No component definition available.');
+});
 
-    if (this.isRuleSet) {
-      return QueryBuilderGroup;
-    }
-
-    throw new Error('No component definition available.');
+const definition = computed<RuleDefinition | null>(() => {
+  if (isRule.value && ruleDefinition.value) {
+    return ruleDefinition.value;
   }
 
-  get definition(): RuleDefinition | null {
-    if (this.isRule && this.ruleDefinition) {
-      return this.ruleDefinition;
-    }
-
-    if (this.isRuleSet) {
-      return null;
-    }
-
-    throw new Error('No component definition available.');
+  if (isRuleSet.value) {
+    return null;
   }
-}
+
+  throw new Error('No component definition available.');
+});
+
 </script>
 
 <template>
@@ -84,7 +78,7 @@ export default class QueryBuilderChild extends Vue {
       class="query-builder-child__component"
     >
       <template
-        v-for="(_, slotName) in $scopedSlots"
+        v-for="(_, slotName) in $slots"
         v-slot:[slotName]="props"
       >
         <slot
@@ -96,7 +90,7 @@ export default class QueryBuilderChild extends Vue {
     <button
       aria-label="Close"
       class="query-builder-child__delete-child"
-      @click="$emit('delete-child')"
+      @click.stop.prevent="$emit('delete-child')"
     >
       <span aria-hidden="true">×</span>
     </button>

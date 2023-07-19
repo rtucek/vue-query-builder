@@ -1,18 +1,15 @@
-<script lang="ts">
-import { Vue, Component, Prop } from 'vue-property-decorator';
+<script lang="ts" setup>
+import { defineProps } from 'vue';
 
-@Component
-export default class Input extends Vue {
-  @Prop({
-    default: null,
-  }) readonly value!: any;
+defineProps({
+  modelValue: {
+    type: [Object, Number, String]
+  },
+  identifier: String
+});
 
-  @Prop({
-    default: null,
-  }) readonly identifier!: string;
-}
 </script>
 
 <template>
-  <span class="dummy-component"/>
+  <span class="dummy-component" />
 </template>

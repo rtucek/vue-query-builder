@@ -1,4 +1,4 @@
-declare module 'vuedraggable' {
+declare module 'vuedraggable/src/vuedraggable.js' {
   type element<El> = {
     element: El,
   }

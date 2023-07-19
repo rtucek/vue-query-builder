@@ -1,89 +1,92 @@
-<script lang="ts">
+<script lang="ts" setup>
 import {
-  Component, Vue, Prop, Provide, Watch,
-} from 'vue-property-decorator';
-import { isQueryBuilderConfig, isRuleSet } from '@/guards';
-import { RuleSet, QueryBuilderConfig } from '@/types';
+  defineProps, PropType, watch, provide, computed, defineEmits,
+} from 'vue';
+import {
+  isQueryBuilderConfig, isRuleSet,
+} from '@/guards';
+import {
+  RuleSet, QueryBuilderConfig,
+} from '@/types';
 import MergeTrap from '@/MergeTrap';
-import QueryBuilderGroup from './QueryBuilderGroup.vue';
+import QueryBuilderGroup from '@/QueryBuilderGroup.vue';
 
-@Component({
-  components: {
-    QueryBuilderGroup,
+const emit = defineEmits(['update:modelValue']);
+
+const props = defineProps({
+  modelValue: {
+    type: Object as PropType<RuleSet>,
+    required: false,
+    default: null,
+    validator: (query: any) => query === null || isRuleSet(query),
   },
-})
-export default class QueryBuilder extends Vue {
-  trap: MergeTrap | null = null
-
-  @Prop({
+  config: {
+    type: Object as PropType<QueryBuilderConfig>,
     required: true,
-    validator: query => query === null || isRuleSet(query),
-  }) readonly value!: RuleSet | null
+    validator: (param: any) => isQueryBuilderConfig(param),
+  },
+});
 
-  @Prop({
-    required: true,
-    validator: param => isQueryBuilderConfig(param),
-  }) readonly config!: QueryBuilderConfig
+provide('getMergeTrap', provideMergeTrap);
 
-  @Provide() getMergeTrap = this.provideMergeTrap
+let trap: MergeTrap | null = null;
 
-  @Watch('value')
-  removeTrap() {
-    // If for any reason the parent who actually owns the state updates the query, we'll remove
-    // cleanup any existing traps.
-    this.trap = null;
+watch(() => props.modelValue, () => {
+  // If for any reason the parent who actually owns the state updates the query, we'll remove
+  // cleanup any existing traps.
+  trap = null;
+});
+
+const ruleSet = computed((): RuleSet => {
+  if (props.modelValue) {
+    return props.modelValue;
   }
 
-  get ruleSet(): RuleSet {
-    if (this.value) {
-      return this.value;
-    }
-
-    if (this.config.operators.length === 0) {
-      return {
-        operatorIdentifier: '',
-        children: [],
-      };
-    }
-
+  if (props.config.operators.length === 0) {
     return {
-      operatorIdentifier: this.config.operators[0].identifier,
+      operatorIdentifier: '',
       children: [],
     };
   }
 
-  get queryBuiderConfig(): QueryBuilderConfig {
-    if (!this.config.dragging) {
-      return this.config;
-    }
+  return {
+    operatorIdentifier: props.config.operators[0].identifier,
+    children: [],
+  };
+});
 
-    // Ensure group parameter is unique... otherwise query builder instances would be able to drag
-    // across 2 different instances and this is currently not supported.
-    return {
-      ...this.config,
-      dragging: {
-        handle: '.query-builder__draggable-handle',
-        ...this.config.dragging,
-        group: `${new Date().getTime() * Math.random()}`,
-      },
-    };
+const queryBuiderConfig = computed((): QueryBuilderConfig => {
+  if (!props.config.dragging) {
+    return props.config;
   }
 
-  updateQuery(newQuery: RuleSet): void {
-    this.trap = null;
-    this.$emit('input', { ...newQuery });
-  }
+  // Ensure group parameter is unique... otherwise query builder instances would be able to drag
+  // across 2 different instances and this is currently not supported.
+  return {
+    ...props.config,
+    dragging: {
+      handle: '.query-builder__draggable-handle',
+      ...props.config.dragging,
+      group: `${new Date().getTime() * Math.random()}`,
+    },
+  };
+});
 
-  provideMergeTrap(): MergeTrap {
-    if (this.trap) {
-      return this.trap;
-    }
-
-    this.trap = new MergeTrap();
-
-    return this.trap;
-  }
+function updateQuery(newQuery: RuleSet): void {
+  trap = null;
+  emit('update:modelValue', { ...newQuery });
 }
+
+function provideMergeTrap(): MergeTrap {
+  if (trap) {
+    return trap;
+  }
+
+  trap = new MergeTrap();
+
+  return trap;
+}
+
 </script>
 
 <template>
@@ -95,7 +98,7 @@ export default class QueryBuilder extends Vue {
     @query-update="updateQuery"
   >
     <template
-      v-for="(_, slotName) in $scopedSlots"
+      v-for="(_, slotName) in $slots"
       v-slot:[slotName]="props"
     >
       <slot

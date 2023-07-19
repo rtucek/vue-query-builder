@@ -18,6 +18,17 @@ module.exports = {
     'no-use-before-define': ['error', { functions: false }],
     'no-param-reassign': ['error', { props: false }],
     'arrow-parens': ['error', 'as-needed'],
+    'no-underscore-dangle': 'off',
+    'import/extensions': [
+      'error',
+      'ignorePackages',
+      {
+        'js': 'never',
+        'jsx': 'never',
+        'ts': 'never',
+        'tsx': 'never'
+      }
+    ]
   },
 
   parserOptions: {
@@ -42,4 +53,13 @@ module.exports = {
       },
     },
   ],
+
+  settings: {
+    'import/resolver': {
+      alias: {
+        map: [['@', './src/']],
+        extensions: ['.js', '.vue', '.ts'],
+      },
+    }
+  }
 };

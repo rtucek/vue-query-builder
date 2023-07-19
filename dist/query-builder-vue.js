@@ -4,7 +4,7 @@ var __publicField = (obj, key, value) => {
   __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
 };
-import { resolveComponent, TransitionGroup, defineComponent, h, nextTick, computed, openBlock, createElementBlock, unref, createCommentVNode, renderSlot, normalizeProps, mergeProps, Fragment, createElementVNode, toDisplayString, createBlock, resolveDynamicComponent, isRef, createSlots, renderList, withCtx, guardReactiveProps, pushScopeId, popScopeId, inject, watch, onMounted, ref, withDirectives, vModelSelect, createVNode, provide } from "vue";
+import { resolveComponent, TransitionGroup, defineComponent, h, nextTick, computed, openBlock, createElementBlock, unref, createCommentVNode, renderSlot, normalizeProps, mergeProps, Fragment, createElementVNode, toDisplayString, createBlock, resolveDynamicComponent, isRef, createSlots, renderList, withCtx, guardReactiveProps, withModifiers, pushScopeId, popScopeId, inject, watch, onMounted, ref, withDirectives, vModelSelect, createVNode, provide } from "vue";
 function isRule(param) {
   if (typeof param !== "object" || param === null) {
     return false;
@@ -2945,7 +2945,7 @@ const _export_sfc = (sfc, props2) => {
   return target;
 };
 const QueryBuilderRule = /* @__PURE__ */ _export_sfc(_sfc_main$3, [["__scopeId", "data-v-f61f07d1"]]);
-const _withScopeId$1 = (n) => (pushScopeId("data-v-1367945e"), n = n(), popScopeId(), n);
+const _withScopeId$1 = (n) => (pushScopeId("data-v-530acb3b"), n = n(), popScopeId(), n);
 const _hoisted_1$1 = { class: "query-builder-child" };
 const _hoisted_2$1 = /* @__PURE__ */ _withScopeId$1(() => /* @__PURE__ */ createElementVNode("span", { "aria-hidden": "true" }, "\xD7", -1));
 const _hoisted_3$1 = [
@@ -3017,14 +3017,14 @@ const _sfc_main$2 = /* @__PURE__ */ defineComponent({
         createElementVNode("button", {
           "aria-label": "Close",
           class: "query-builder-child__delete-child",
-          onClick: _cache[1] || (_cache[1] = ($event) => _ctx.$emit("delete-child"))
+          onClick: _cache[1] || (_cache[1] = withModifiers(($event) => _ctx.$emit("delete-child"), ["stop", "prevent"]))
         }, _hoisted_3$1)
       ]);
     };
   }
 });
-const QueryBuilderChild_vue_vue_type_style_index_0_scoped_1367945e_lang = "";
-const QueryBuilderChild = /* @__PURE__ */ _export_sfc(_sfc_main$2, [["__scopeId", "data-v-1367945e"]]);
+const QueryBuilderChild_vue_vue_type_style_index_0_scoped_530acb3b_lang = "";
+const QueryBuilderChild = /* @__PURE__ */ _export_sfc(_sfc_main$2, [["__scopeId", "data-v-530acb3b"]]);
 const _withScopeId = (n) => (pushScopeId("data-v-78d4affb"), n = n(), popScopeId(), n);
 const _hoisted_1 = { class: "query-builder-group" };
 const _hoisted_2 = { class: "query-builder-group__control" };

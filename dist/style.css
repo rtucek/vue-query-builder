@@ -32,7 +32,7 @@
   -webkit-box-flex: 1;
       -ms-flex: 1;
           flex: 1;
-}.query-builder-child[data-v-1367945e] {
+}.query-builder-child[data-v-530acb3b] {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -42,12 +42,12 @@
           flex-flow: row;
   position: relative;
 }
-.query-builder-child__component[data-v-1367945e] {
+.query-builder-child__component[data-v-530acb3b] {
   -webkit-box-flex: 1;
       -ms-flex: 1;
           flex: 1;
 }
-.query-builder-child__delete-child[data-v-1367945e] {
+.query-builder-child__delete-child[data-v-530acb3b] {
   position: absolute;
   top: 16px;
   right: 8px;

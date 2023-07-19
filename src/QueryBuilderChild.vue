@@ -90,7 +90,7 @@ const definition = computed<RuleDefinition | null>(() => {
     <button
       aria-label="Close"
       class="query-builder-child__delete-child"
-      @click="$emit('delete-child')"
+      @click.stop.prevent="$emit('delete-child')"
     >
       <span aria-hidden="true">×</span>
     </button>
